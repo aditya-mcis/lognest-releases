@@ -233,15 +233,14 @@
   <div class="nav-inner">
     <div class="nav-logo">LogNest</div>
     <div class="nav-links">
+      <a href="#how">How it works</a>
       <a href="#features">Features</a>
       <a href="#usecases">Use Cases</a>
-      <a href="#how">How it works</a>
       <a href="#integrate">Integrate</a>
-      <a href="#dashboard">Dashboard</a>
       <a href="#pricing">Pricing</a>
-      <a href="#activate">Activate</a>
-      <a href="#api">API</a>
       <a href="#faq">FAQ</a>
+      <a href="#agent">Enterprise</a>
+      <a href="#api">API</a>
       <a href="#pricing" class="nav-cta">Buy License</a>
     </div>
   </div>
@@ -301,6 +300,38 @@
         <span style="font-family:var(--mono);font-size:12px;color:var(--dim);flex:1;text-align:center;">LogNest — Live Dashboard</span>
       </div>
       <img src="screenshot-dashboard.png" alt="LogNest dashboard showing live log stream with DEBUG, WARN, and ERROR entries from multiple services" style="width:100%;display:block;" />
+    </div>
+  </div>
+</section>
+
+<!-- ── How it works ── -->
+<section id="how">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label">How it works</div>
+      <div class="section-title">Up and running in 60 seconds</div>
+    </div>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-num">1</div>
+        <div class="how-title">Install LogNest</div>
+        <div class="how-desc">Download the installer from <a href="https://github.com/aditya-mcis/lognest-releases/releases/latest" target="_blank" style="color:var(--accent)">github.com/aditya-mcis/lognest-releases</a>. Mac: drag to Applications. First launch: right-click → Open to bypass Gatekeeper.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">2</div>
+        <div class="how-title">Add the client library</div>
+        <div class="how-desc">Add one Maven dependency, npm package, or pip install to your existing app. Zero code changes for Java/Spring Boot.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">3</div>
+        <div class="how-title">Run your app</div>
+        <div class="how-desc">Start your application normally. Logs automatically stream to LogNest at <code>localhost:9000</code>.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">4</div>
+        <div class="how-title">Debug in the dashboard</div>
+        <div class="how-desc">Filter, search, click rows for details, watch live in real-time, export when needed.</div>
+      </div>
     </div>
   </div>
 </section>
@@ -453,38 +484,6 @@
         <div class="usecase-tag tag-compliance">PII Safe</div>
       </div>
 
-    </div>
-  </div>
-</section>
-
-<!-- ── How it works ── -->
-<section id="how">
-  <div class="container">
-    <div class="section-head">
-      <div class="section-label">How it works</div>
-      <div class="section-title">Up and running in 60 seconds</div>
-    </div>
-    <div class="how-steps">
-      <div class="how-step">
-        <div class="how-num">1</div>
-        <div class="how-title">Install LogNest</div>
-        <div class="how-desc">Download the installer from <a href="https://github.com/aditya-mcis/lognest-releases/releases/latest" target="_blank" style="color:var(--accent)">github.com/aditya-mcis/lognest-releases</a>. Mac: drag to Applications. First launch: right-click → Open to bypass Gatekeeper.</div>
-      </div>
-      <div class="how-step">
-        <div class="how-num">2</div>
-        <div class="how-title">Add the client library</div>
-        <div class="how-desc">Add one Maven dependency, npm package, or pip install to your existing app. Zero code changes for Java/Spring Boot.</div>
-      </div>
-      <div class="how-step">
-        <div class="how-num">3</div>
-        <div class="how-title">Run your app</div>
-        <div class="how-desc">Start your application normally. Logs automatically stream to LogNest at <code>localhost:9000</code>.</div>
-      </div>
-      <div class="how-step">
-        <div class="how-num">4</div>
-        <div class="how-title">Debug in the dashboard</div>
-        <div class="how-desc">Filter, search, click rows for details, watch live in real-time, export when needed.</div>
-      </div>
     </div>
   </div>
 </section>
@@ -802,6 +801,155 @@ curl_exec($ch);</pre>
   </div>
 </section>
 
+<!-- ── Pricing ── -->
+<section id="pricing">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label">Pricing</div>
+      <div class="section-title">One-time purchase. No subscriptions.</div>
+      <div class="section-sub">Buy once, own it forever. Your license key unlocks features instantly inside the app — no restart needed.</div>
+    </div>
+    <div class="pricing-grid">
+
+      <div class="price-card">
+        <div class="card-tier" style="color:#484f58">Free</div>
+        <div class="card-price">$0</div>
+        <ul class="card-features">
+          <li>1,000 logs stored</li>
+          <li>7-day auto-cleanup</li>
+          <li>Live streaming</li>
+          <li>Level / service / text filters</li>
+          <li>Log detail + metadata view</li>
+          <li>Help tab with docs</li>
+        </ul>
+        <a href="https://github.com/aditya-mcis/lognest-releases/releases/latest" target="_blank" class="card-btn btn-free">Download Free</a>
+      </div>
+
+      <div class="price-card">
+        <div class="card-tier" style="color:#3fb950">Starter</div>
+        <div class="card-price">$10 <span>one-time</span></div>
+        <ul class="card-features">
+          <li style="color:#3fb950">70,000 logs stored</li>
+          <li style="color:#3fb950">30-day auto-cleanup</li>
+          <li style="color:#3fb950">Export CSV &amp; JSON</li>
+          <li style="color:#3fb950">Saved filter presets</li>
+          <li style="color:#3fb950">Session clear (auto-wipe on startup)</li>
+          <li>All Free features</li>
+        </ul>
+        <a href="https://shrivadi.gumroad.com/l/axqcym" target="_blank" class="card-btn btn-starter">Buy Starter — $10</a>
+      </div>
+
+      <div class="price-card popular">
+        <div class="popular-tag">Most Popular</div>
+        <div class="card-tier" style="color:#58a6ff">Pro</div>
+        <div class="card-price">$49 <span>one-time</span></div>
+        <ul class="card-features">
+          <li style="color:#58a6ff">100,000 logs stored</li>
+          <li style="color:#58a6ff">90-day auto-cleanup</li>
+          <li style="color:#58a6ff">Error rate charts</li>
+          <li style="color:#58a6ff">Alert rules</li>
+          <li style="color:#58a6ff">Saved filter presets</li>
+          <li style="color:#58a6ff">Export CSV &amp; JSON</li>
+          <li>All Starter features</li>
+        </ul>
+        <a href="https://shrivadi.gumroad.com/l/hlcse" target="_blank" class="card-btn btn-pro">Buy Pro — $49</a>
+      </div>
+
+      <div class="price-card">
+        <div class="card-tier" style="color:#d2a8ff">Enterprise</div>
+        <div class="card-price">$150 <span>one-time</span></div>
+        <ul class="card-features">
+          <li style="color:#d2a8ff">Unlimited logs</li>
+          <li style="color:#d2a8ff">Unlimited retention</li>
+          <li style="color:#d2a8ff">All Pro features</li>
+          <li style="color:#d2a8ff">Unlimited projects</li>
+          <li style="color:#d2a8ff">Log file agent (tail any file)</li>
+          <li style="color:#d2a8ff">Stdin pipe agent (Docker, syslog)</li>
+          <li style="color:#d2a8ff">Raw text ingest API</li>
+          <li style="color:#d2a8ff">Priority email support</li>
+        </ul>
+        <a href="https://shrivadi.gumroad.com/l/cejcjb" target="_blank" class="card-btn btn-ent">Buy Enterprise — $150</a>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:24px;color:var(--dim);font-size:13px;line-height:2">
+      Secure checkout via Gumroad · License key delivered within 24 hours · 14-day money-back guarantee<br/>
+      Key entered in <strong style="color:var(--text)">Settings → License</strong> inside the app · Activates instantly · No restart needed
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ── -->
+<section id="faq">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label">FAQ</div>
+      <div class="section-title">Common questions</div>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Does LogNest send any data to the cloud?</div>
+        <div class="faq-a">No. LogNest runs entirely on your machine. All log data is stored locally in a SQLite file. No telemetry, no analytics, no data ever leaves your computer.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Do I need Java installed to run LogNest?</div>
+        <div class="faq-a">Yes, Java 17 or higher must be installed on your machine — the installer does not bundle a JRE. Most developer machines already have Java. Check with <code>java -version</code>. Download from <a href="https://adoptium.net" target="_blank">adoptium.net</a> if needed.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How do I install the Java Spring Boot starter?</div>
+        <div class="faq-a">Run <code>mvn install</code> in the <code>clients/java</code> directory included with LogNest. This installs the starter to your local Maven repository. Then add the <code>&lt;dependency&gt;</code> to your project's pom.xml and set <code>lognest.service=your-app</code> in application.properties. That's all.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Will LogNest being down crash my application?</div>
+        <div class="faq-a">No. All client libraries send logs asynchronously with a 2-second timeout and silently swallow errors. If LogNest is unreachable, your app continues running normally and simply skips sending those logs.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How do I receive my license key?</div>
+        <div class="faq-a">Email <a href="mailto:contact@lognest.dev">contact@lognest.dev</a> with your plan. You'll receive a license key like <code>LN-PRO-20281231-A3F8B2C1-9D4E7F2A</code> within 24 hours. Paste it in Settings → License inside the app. Features activate instantly.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Can I use one license key on multiple machines?</div>
+        <div class="faq-a">Yes — each license key can be activated on up to 3 machines for personal use. Need more seats? Contact us for a team license.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What happens when my license expires?</div>
+        <div class="faq-a">The app reverts to Free tier — your log data is never deleted. Purchase a new key to re-enable paid features. Keys include the expiry date in the key itself and are verified offline.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Is there a refund policy?</div>
+        <div class="faq-a">Yes — 14-day money-back guarantee, no questions asked. Email <a href="mailto:contact@lognest.dev">contact@lognest.dev</a>.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Can I use LogNest with non-Java/Node/Python languages?</div>
+        <div class="faq-a">Yes. Any language that can make an HTTP POST request works — Go, Ruby, PHP, Rust, .NET, etc. The API is a plain JSON REST endpoint. See the curl tab in the Integration section for the request format.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What is the Enterprise Log Agent and when do I need it?</div>
+        <div class="faq-a">The agent (<code>lognest-agent.py</code>) is for apps you <strong>can't modify</strong> — legacy services, third-party binaries, Docker containers, nginx, syslog, etc. Instead of adding a library to your code, you either <strong>tail a log file</strong> (<code>tail</code> mode) or <strong>pipe the process output</strong> (<code>pipe</code> mode) and the agent forwards every line to LogNest automatically. It auto-detects the log level from each line. Requires Enterprise license.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How does the agent detect the log level from unstructured text?</div>
+        <div class="faq-a">It scans each line (case-insensitive) for keywords: <code>FATAL</code> / <code>CRITICAL</code> / <code>ERROR</code> / <code>EXCEPTION</code> → ERROR; <code>WARN</code> → WARN; <code>DEBUG</code> / <code>TRACE</code> → DEBUG; <code>INFO</code> → INFO. If no keyword matches, it defaults to INFO. You can also force a fixed level with <code>--level ERROR</code>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="cta-section">
+  <div class="container">
+    <h2>Start debugging smarter today.</h2>
+    <p>Free to download. One dependency install. Your logs appear in seconds.</p>
+    <div class="hero-buttons">
+      <a href="https://github.com/aditya-mcis/lognest-releases/releases/latest" target="_blank" class="btn-primary">Download for Free</a>
+      <a href="mailto:contact@lognest.dev?subject=LogNest License Purchase" class="btn-outline">Buy a License</a>
+    </div>
+    <div style="margin-top:16px;font-size:13px;color:var(--dim)">
+      Questions? <a href="mailto:contact@lognest.dev" style="color:var(--muted)">contact@lognest.dev</a> · 14-day money-back guarantee
+    </div>
+  </div>
+</section>
+
 <!-- ── Enterprise Agent ── -->
 <section id="agent" style="background:linear-gradient(180deg,#0d1117 0%,#100d1a 100%)">
   <div class="container">
@@ -932,6 +1080,59 @@ curl -X POST "http://localhost:9000/logs/raw?service=my-app" \
       </div>
     </div>
 
+  </div>
+</section>
+
+<!-- ── Dashboard Guide ── -->
+<section id="dashboard">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label">Dashboard Guide</div>
+      <div class="section-title">Everything in the UI explained</div>
+      <div class="section-sub">Open LogNest at <code>http://localhost:3000</code> after starting the app.</div>
+    </div>
+    <div class="dashboard-grid">
+      <div class="dash-card">
+        <div class="dash-card-head"><div class="dash-icon">📋</div><div class="dash-title">Logs Tab — main table</div></div>
+        <div class="dash-desc">The default view. Shows all ingested logs with columns: Time, Level (color-coded), Service, Message. Newest logs at the top.</div>
+        <div class="dash-tip">Click any row to open the full detail panel — shows complete message, trace ID, and pretty-printed metadata JSON.</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><div class="dash-icon">🔍</div><div class="dash-title">Filters bar</div></div>
+        <div class="dash-desc">Three filters applied simultaneously: <strong>Level</strong> dropdown (ERROR / WARN / INFO / DEBUG / TRACE), <strong>Service</strong> text input, and <strong>Search</strong> for message text.</div>
+        <div class="dash-tip">Filters are applied on every keystroke — no need to press Enter.</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><div class="dash-icon">📡</div><div class="dash-title">Live button — real-time streaming</div></div>
+        <div class="dash-desc">Toggle the <strong>Live</strong> button to start a Server-Sent Events stream. New logs from your app appear instantly without refreshing.</div>
+        <div class="dash-tip">Works like <code>tail -f</code>. New logs stack at the top up to 500 entries while Live is on.</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><div class="dash-icon">📊</div><div class="dash-title">Charts Tab <span style="color:var(--blue);font-size:11px">Pro+</span></div></div>
+        <div class="dash-desc">Line chart showing log counts per level over time. Choose window (15 min → 24 hours) and bucket size (1 min, 5 min, 15 min). Auto-refreshes every 30 seconds.</div>
+        <div class="dash-tip">Use this to spot error spikes during a release or load test.</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><div class="dash-icon">⚙️</div><div class="dash-title">Settings Tab</div></div>
+        <div class="dash-desc">Three panels: <strong>License</strong> (enter your key to unlock features), <strong>Saved Presets</strong> (save filter combos for one-click reuse), <strong>Alert Rules</strong> (define error rate thresholds).</div>
+        <div class="dash-tip">Presets let you save things like "payment errors" = level:ERROR + service:payment-service.</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><div class="dash-icon">❓</div><div class="dash-title">Help &amp; Pricing Tab</div></div>
+        <div class="dash-desc">In-app documentation: quick start steps, Java/Node/Python code examples, full API reference, and pricing table with license activation instructions.</div>
+        <div class="dash-tip">Always available offline — no internet needed to read the docs.</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><div class="dash-icon">📁</div><div class="dash-title">Export <span style="color:var(--green);font-size:11px">Starter+</span></div></div>
+        <div class="dash-desc">The <strong>CSV</strong> and <strong>JSON</strong> buttons in the header export all currently filtered logs. Respects the active level/service/search filters.</div>
+        <div class="dash-tip">Export then open in Excel, share with teammates, or import into another tool.</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><div class="dash-icon">🔔</div><div class="dash-title">Alert Notifications <span style="color:var(--blue);font-size:11px">Pro+</span></div></div>
+        <div class="dash-desc">When an alert rule fires (e.g. ≥10 ERRORs in 5 minutes), a toast notification appears in the bottom-right corner of the dashboard automatically.</div>
+        <div class="dash-tip">Alerts check every 60 seconds. Each alert won't re-fire within the same time window.</div>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1099,137 +1300,6 @@ sudo iptables -A INPUT -p tcp --dport 9000 -j ACCEPT</pre>
       </div>
     </div>
 
-  </div>
-</section>
-
-<!-- ── Dashboard Guide ── -->
-<section id="dashboard">
-  <div class="container">
-    <div class="section-head">
-      <div class="section-label">Dashboard Guide</div>
-      <div class="section-title">Everything in the UI explained</div>
-      <div class="section-sub">Open LogNest at <code>http://localhost:3000</code> after starting the app.</div>
-    </div>
-    <div class="dashboard-grid">
-      <div class="dash-card">
-        <div class="dash-card-head"><div class="dash-icon">📋</div><div class="dash-title">Logs Tab — main table</div></div>
-        <div class="dash-desc">The default view. Shows all ingested logs with columns: Time, Level (color-coded), Service, Message. Newest logs at the top.</div>
-        <div class="dash-tip">Click any row to open the full detail panel — shows complete message, trace ID, and pretty-printed metadata JSON.</div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-head"><div class="dash-icon">🔍</div><div class="dash-title">Filters bar</div></div>
-        <div class="dash-desc">Three filters applied simultaneously: <strong>Level</strong> dropdown (ERROR / WARN / INFO / DEBUG / TRACE), <strong>Service</strong> text input, and <strong>Search</strong> for message text.</div>
-        <div class="dash-tip">Filters are applied on every keystroke — no need to press Enter.</div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-head"><div class="dash-icon">📡</div><div class="dash-title">Live button — real-time streaming</div></div>
-        <div class="dash-desc">Toggle the <strong>Live</strong> button to start a Server-Sent Events stream. New logs from your app appear instantly without refreshing.</div>
-        <div class="dash-tip">Works like <code>tail -f</code>. New logs stack at the top up to 500 entries while Live is on.</div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-head"><div class="dash-icon">📊</div><div class="dash-title">Charts Tab <span style="color:var(--blue);font-size:11px">Pro+</span></div></div>
-        <div class="dash-desc">Line chart showing log counts per level over time. Choose window (15 min → 24 hours) and bucket size (1 min, 5 min, 15 min). Auto-refreshes every 30 seconds.</div>
-        <div class="dash-tip">Use this to spot error spikes during a release or load test.</div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-head"><div class="dash-icon">⚙️</div><div class="dash-title">Settings Tab</div></div>
-        <div class="dash-desc">Three panels: <strong>License</strong> (enter your key to unlock features), <strong>Saved Presets</strong> (save filter combos for one-click reuse), <strong>Alert Rules</strong> (define error rate thresholds).</div>
-        <div class="dash-tip">Presets let you save things like "payment errors" = level:ERROR + service:payment-service.</div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-head"><div class="dash-icon">❓</div><div class="dash-title">Help &amp; Pricing Tab</div></div>
-        <div class="dash-desc">In-app documentation: quick start steps, Java/Node/Python code examples, full API reference, and pricing table with license activation instructions.</div>
-        <div class="dash-tip">Always available offline — no internet needed to read the docs.</div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-head"><div class="dash-icon">📁</div><div class="dash-title">Export <span style="color:var(--green);font-size:11px">Starter+</span></div></div>
-        <div class="dash-desc">The <strong>CSV</strong> and <strong>JSON</strong> buttons in the header export all currently filtered logs. Respects the active level/service/search filters.</div>
-        <div class="dash-tip">Export then open in Excel, share with teammates, or import into another tool.</div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-head"><div class="dash-icon">🔔</div><div class="dash-title">Alert Notifications <span style="color:var(--blue);font-size:11px">Pro+</span></div></div>
-        <div class="dash-desc">When an alert rule fires (e.g. ≥10 ERRORs in 5 minutes), a toast notification appears in the bottom-right corner of the dashboard automatically.</div>
-        <div class="dash-tip">Alerts check every 60 seconds. Each alert won't re-fire within the same time window.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── Pricing ── -->
-<section id="pricing">
-  <div class="container">
-    <div class="section-head">
-      <div class="section-label">Pricing</div>
-      <div class="section-title">One-time purchase. No subscriptions.</div>
-      <div class="section-sub">Buy once, own it forever. Your license key unlocks features instantly inside the app — no restart needed.</div>
-    </div>
-    <div class="pricing-grid">
-
-      <div class="price-card">
-        <div class="card-tier" style="color:#484f58">Free</div>
-        <div class="card-price">$0</div>
-        <ul class="card-features">
-          <li>1,000 logs stored</li>
-          <li>7-day auto-cleanup</li>
-          <li>Live streaming</li>
-          <li>Level / service / text filters</li>
-          <li>Log detail + metadata view</li>
-          <li>Help tab with docs</li>
-        </ul>
-        <a href="https://github.com/aditya-mcis/lognest-releases/releases/latest" target="_blank" class="card-btn btn-free">Download Free</a>
-      </div>
-
-      <div class="price-card">
-        <div class="card-tier" style="color:#3fb950">Starter</div>
-        <div class="card-price">$10 <span>one-time</span></div>
-        <ul class="card-features">
-          <li style="color:#3fb950">70,000 logs stored</li>
-          <li style="color:#3fb950">30-day auto-cleanup</li>
-          <li style="color:#3fb950">Export CSV &amp; JSON</li>
-          <li style="color:#3fb950">Saved filter presets</li>
-          <li style="color:#3fb950">Session clear (auto-wipe on startup)</li>
-          <li>All Free features</li>
-        </ul>
-        <a href="https://shrivadi.gumroad.com/l/axqcym" target="_blank" class="card-btn btn-starter">Buy Starter — $10</a>
-      </div>
-
-      <div class="price-card popular">
-        <div class="popular-tag">Most Popular</div>
-        <div class="card-tier" style="color:#58a6ff">Pro</div>
-        <div class="card-price">$49 <span>one-time</span></div>
-        <ul class="card-features">
-          <li style="color:#58a6ff">100,000 logs stored</li>
-          <li style="color:#58a6ff">90-day auto-cleanup</li>
-          <li style="color:#58a6ff">Error rate charts</li>
-          <li style="color:#58a6ff">Alert rules</li>
-          <li style="color:#58a6ff">Saved filter presets</li>
-          <li style="color:#58a6ff">Export CSV &amp; JSON</li>
-          <li>All Starter features</li>
-        </ul>
-        <a href="https://shrivadi.gumroad.com/l/hlcse" target="_blank" class="card-btn btn-pro">Buy Pro — $49</a>
-      </div>
-
-      <div class="price-card">
-        <div class="card-tier" style="color:#d2a8ff">Enterprise</div>
-        <div class="card-price">$150 <span>one-time</span></div>
-        <ul class="card-features">
-          <li style="color:#d2a8ff">Unlimited logs</li>
-          <li style="color:#d2a8ff">Unlimited retention</li>
-          <li style="color:#d2a8ff">All Pro features</li>
-          <li style="color:#d2a8ff">Unlimited projects</li>
-          <li style="color:#d2a8ff">Log file agent (tail any file)</li>
-          <li style="color:#d2a8ff">Stdin pipe agent (Docker, syslog)</li>
-          <li style="color:#d2a8ff">Raw text ingest API</li>
-          <li style="color:#d2a8ff">Priority email support</li>
-        </ul>
-        <a href="https://shrivadi.gumroad.com/l/cejcjb" target="_blank" class="card-btn btn-ent">Buy Enterprise — $150</a>
-      </div>
-    </div>
-
-    <div style="text-align:center;margin-top:24px;color:var(--dim);font-size:13px;line-height:2">
-      Secure checkout via Gumroad · License key delivered within 24 hours · 14-day money-back guarantee<br/>
-      Key entered in <strong style="color:var(--text)">Settings → License</strong> inside the app · Activates instantly · No restart needed
-    </div>
   </div>
 </section>
 
@@ -1402,77 +1472,6 @@ sudo iptables -A INPUT -p tcp --dport 9000 -j ACCEPT</pre>
 { "success": true, "tier": "PRO" }</pre>
         </div>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── FAQ ── -->
-<section id="faq">
-  <div class="container">
-    <div class="section-head">
-      <div class="section-label">FAQ</div>
-      <div class="section-title">Common questions</div>
-    </div>
-    <div class="faq-list">
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">Does LogNest send any data to the cloud?</div>
-        <div class="faq-a">No. LogNest runs entirely on your machine. All log data is stored locally in a SQLite file. No telemetry, no analytics, no data ever leaves your computer.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">Do I need Java installed to run LogNest?</div>
-        <div class="faq-a">Yes, Java 17 or higher must be installed on your machine — the installer does not bundle a JRE. Most developer machines already have Java. Check with <code>java -version</code>. Download from <a href="https://adoptium.net" target="_blank">adoptium.net</a> if needed.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">How do I install the Java Spring Boot starter?</div>
-        <div class="faq-a">Run <code>mvn install</code> in the <code>clients/java</code> directory included with LogNest. This installs the starter to your local Maven repository. Then add the <code>&lt;dependency&gt;</code> to your project's pom.xml and set <code>lognest.service=your-app</code> in application.properties. That's all.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">Will LogNest being down crash my application?</div>
-        <div class="faq-a">No. All client libraries send logs asynchronously with a 2-second timeout and silently swallow errors. If LogNest is unreachable, your app continues running normally and simply skips sending those logs.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">How do I receive my license key?</div>
-        <div class="faq-a">Email <a href="mailto:contact@lognest.dev">contact@lognest.dev</a> with your plan. You'll receive a license key like <code>LN-PRO-20281231-A3F8B2C1-9D4E7F2A</code> within 24 hours. Paste it in Settings → License inside the app. Features activate instantly.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">Can I use one license key on multiple machines?</div>
-        <div class="faq-a">Yes — each license key can be activated on up to 3 machines for personal use. Need more seats? Contact us for a team license.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">What happens when my license expires?</div>
-        <div class="faq-a">The app reverts to Free tier — your log data is never deleted. Purchase a new key to re-enable paid features. Keys include the expiry date in the key itself and are verified offline.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">Is there a refund policy?</div>
-        <div class="faq-a">Yes — 14-day money-back guarantee, no questions asked. Email <a href="mailto:contact@lognest.dev">contact@lognest.dev</a>.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">Can I use LogNest with non-Java/Node/Python languages?</div>
-        <div class="faq-a">Yes. Any language that can make an HTTP POST request works — Go, Ruby, PHP, Rust, .NET, etc. The API is a plain JSON REST endpoint. See the curl tab in the Integration section for the request format.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">What is the Enterprise Log Agent and when do I need it?</div>
-        <div class="faq-a">The agent (<code>lognest-agent.py</code>) is for apps you <strong>can't modify</strong> — legacy services, third-party binaries, Docker containers, nginx, syslog, etc. Instead of adding a library to your code, you either <strong>tail a log file</strong> (<code>tail</code> mode) or <strong>pipe the process output</strong> (<code>pipe</code> mode) and the agent forwards every line to LogNest automatically. It auto-detects the log level from each line. Requires Enterprise license.</div>
-      </div>
-      <div class="faq-item">
-        <div class="faq-q" onclick="toggleFaq(this)">How does the agent detect the log level from unstructured text?</div>
-        <div class="faq-a">It scans each line (case-insensitive) for keywords: <code>FATAL</code> / <code>CRITICAL</code> / <code>ERROR</code> / <code>EXCEPTION</code> → ERROR; <code>WARN</code> → WARN; <code>DEBUG</code> / <code>TRACE</code> → DEBUG; <code>INFO</code> → INFO. If no keyword matches, it defaults to INFO. You can also force a fixed level with <code>--level ERROR</code>.</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ── CTA ── -->
-<section class="cta-section">
-  <div class="container">
-    <h2>Start debugging smarter today.</h2>
-    <p>Free to download. One dependency install. Your logs appear in seconds.</p>
-    <div class="hero-buttons">
-      <a href="https://github.com/aditya-mcis/lognest-releases/releases/latest" target="_blank" class="btn-primary">Download for Free</a>
-      <a href="mailto:contact@lognest.dev?subject=LogNest License Purchase" class="btn-outline">Buy a License</a>
-    </div>
-    <div style="margin-top:16px;font-size:13px;color:var(--dim)">
-      Questions? <a href="mailto:contact@lognest.dev" style="color:var(--muted)">contact@lognest.dev</a> · 14-day money-back guarantee
     </div>
   </div>
 </section>
