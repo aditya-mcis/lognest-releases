@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LogNest — Local Log Analysis for Backend Developers</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #090d13;
+      --surface:  #0e1218;
+      --surface2: #141920;
+      --border:   #1c2128;
+      --border2:  #2d333b;
+      --text:     #e6edf3;
+      --muted:    #8b949e;
+      --dim:      #484f58;
+      --blue:     #58a6ff;
+      --green:    #3fb950;
+      --purple:   #d2a8ff;
+      --orange:   #ffb86c;
+      --red:      #f85149;
+      --mono: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg);
+      background-image: radial-gradient(rgba(99,110,123,0.13) 1px, transparent 1px);
+      background-size: 28px 28px;
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code { font-family: var(--mono); font-size: 0.85em; background: rgba(88,166,255,0.07); border: 1px solid var(--border2); padding: 1px 6px; border-radius: 4px; color: var(--blue); }
+    pre { font-family: var(--mono); font-size: 13px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; overflow-x: auto; line-height: 1.75; color: var(--text); margin: 0; }
+    .container { max-width: 1060px; margin: 0 auto; padding: 0 24px; }
+    section { padding: 88px 0; }
+    section + section { border-top: 1px solid var(--border); }
+
+    /* ── Nav ── */
+    nav { position: sticky; top: 0; z-index: 100; background: rgba(9,13,19,0.88); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 12px 0; }
+    .nav-inner { max-width: 1060px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .nav-logo { font-family: var(--mono); font-size: 17px; font-weight: 700; letter-spacing: 3px; flex-shrink: 0; background: linear-gradient(90deg, #79b8ff, #58a6ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .nav-links { display: flex; gap: 16px; flex-wrap: nowrap; align-items: center; overflow-x: auto; scrollbar-width: none; -ms-overflow-style: none; }
+    .nav-links::-webkit-scrollbar { display: none; }
+    .nav-links a { color: var(--muted); font-size: 12.5px; font-weight: 500; transition: color 0.15s; white-space: nowrap; flex-shrink: 0; }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+    .nav-cta { background: var(--blue) !important; color: #090d13 !important; padding: 7px 14px; border-radius: 6px; font-weight: 700; font-size: 12.5px; transition: all 0.2s !important; flex-shrink: 0; white-space: nowrap; }
+    .nav-cta:hover { background: #79b8ff !important; box-shadow: 0 0 18px rgba(88,166,255,0.4) !important; text-decoration: none !important; }
+
+    /* ── Hero ── */
+    .hero { padding: 108px 0 84px; text-align: center; background: radial-gradient(ellipse 100% 55% at 50% -5%, rgba(88,166,255,0.07), transparent), radial-gradient(ellipse 50% 35% at 15% 85%, rgba(210,168,255,0.04), transparent); }
+    .hero-badge { display: inline-flex; align-items: center; gap: 7px; padding: 5px 16px; background: rgba(63,185,80,0.07); border: 1px solid rgba(63,185,80,0.28); border-radius: 20px; color: var(--green); font-size: 12px; font-weight: 600; margin-bottom: 28px; letter-spacing: 0.3px; }
+    .hero-badge-dot { width: 7px; height: 7px; background: var(--green); border-radius: 50%; animation: pulse-green 2.5s ease-in-out infinite; flex-shrink: 0; }
+    @keyframes pulse-green { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.35;transform:scale(0.75)} }
+    .hero h1 { font-size: clamp(38px, 6.5vw, 64px); font-weight: 900; color: #fff; line-height: 1.08; margin-bottom: 22px; letter-spacing: -2px; }
+    .hero h1 .grad { background: linear-gradient(130deg, #79b8ff 0%, #58a6ff 45%, #c9a9ff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero p { font-size: 17px; color: var(--muted); max-width: 520px; margin: 0 auto 36px; line-height: 1.7; }
+    .hero-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-primary { padding: 13px 28px; background: var(--blue); color: #090d13; border-radius: 8px; font-weight: 700; font-size: 15px; transition: all 0.2s; }
+    .btn-primary:hover { background: #79b8ff; box-shadow: 0 0 28px rgba(88,166,255,0.5); transform: translateY(-1px); text-decoration: none; }
+    .btn-outline { padding: 13px 28px; border: 1px solid var(--border2); color: var(--text); border-radius: 8px; font-size: 15px; font-weight: 500; background: rgba(255,255,255,0.02); transition: all 0.2s; }
+    .btn-outline:hover { background: var(--surface2); border-color: rgba(88,166,255,0.5); transform: translateY(-1px); text-decoration: none; }
+    .hero-meta { margin-top: 20px; font-size: 13px; color: var(--dim); display: flex; justify-content: center; gap: 22px; flex-wrap: wrap; font-weight: 500; }
+    .hero-meta span::before { content: '✓ '; color: var(--green); }
+
+    /* ── Terminal ── */
+    .terminal { margin: 52px auto 0; max-width: 720px; background: var(--bg); border: 1px solid var(--border2); border-radius: 12px; overflow: hidden; text-align: left; box-shadow: 0 0 0 1px rgba(88,166,255,0.04), 0 0 50px rgba(88,166,255,0.07), 0 28px 72px rgba(0,0,0,0.55); }
+    .terminal-bar { background: var(--surface2); padding: 11px 16px; display: flex; align-items: center; gap: 7px; border-bottom: 1px solid var(--border); }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-r { background: #ff5f56; } .dot-y { background: #ffbd2e; } .dot-g { background: #27c93f; }
+    .terminal-title { color: var(--dim); font-size: 12px; flex: 1; text-align: center; font-family: var(--mono); }
+    .terminal-body { padding: 20px 22px; font-family: var(--mono); font-size: 13px; line-height: 2; }
+    .t-prompt { color: var(--green); } .t-cmd { color: var(--text); } .t-ok { color: var(--green); } .t-info { color: var(--blue); } .t-comment { color: var(--dim); }
+
+    /* ── Section headings ── */
+    .section-label { display: inline-flex; align-items: center; gap: 8px; font-size: 11px; color: var(--blue); font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; }
+    .section-label::before { content: ''; display: inline-block; width: 18px; height: 2px; background: var(--blue); border-radius: 2px; opacity: 0.7; }
+    .section-title { font-size: clamp(24px, 4vw, 36px); font-weight: 800; color: #fff; margin-bottom: 14px; letter-spacing: -0.5px; line-height: 1.2; }
+    .section-sub { font-size: 15px; color: var(--muted); max-width: 520px; line-height: 1.65; }
+    .section-head { margin-bottom: 48px; }
+
+    /* ── Features grid ── */
+    .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    @media (max-width: 700px) { .features-grid { grid-template-columns: 1fr; } }
+    .feature-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s; position: relative; overflow: hidden; }
+    .feature-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent 0%, var(--blue) 50%, transparent 100%); opacity: 0; transition: opacity 0.25s; }
+    .feature-card:hover { border-color: rgba(88,166,255,0.35); box-shadow: 0 0 28px rgba(88,166,255,0.07), 0 8px 24px rgba(0,0,0,0.3); transform: translateY(-3px); }
+    .feature-card:hover::before { opacity: 0.6; }
+    .feature-icon { font-size: 26px; margin-bottom: 12px; }
+    .feature-title { font-size: 14px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+    .feature-desc { font-size: 13px; color: var(--muted); line-height: 1.65; }
+
+    /* ── How it works ── */
+    .how-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    @media (max-width: 700px) { .how-steps { grid-template-columns: repeat(2, 1fr); } }
+    .how-step { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 22px; text-align: center; transition: border-color 0.2s, transform 0.2s; }
+    .how-step:hover { border-color: rgba(88,166,255,0.3); transform: translateY(-2px); }
+    .how-num { width: 38px; height: 38px; border-radius: 50%; background: rgba(88,166,255,0.08); border: 2px solid var(--blue); color: var(--blue); font-weight: 700; font-size: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; box-shadow: 0 0 14px rgba(88,166,255,0.18); }
+    .how-title { font-weight: 700; color: #fff; margin-bottom: 6px; font-size: 14px; }
+    .how-desc { font-size: 12px; color: var(--muted); line-height: 1.65; }
+
+    /* ── Tab integration section ── */
+    .lang-tabs { display: flex; gap: 0; border: 1px solid var(--border2); border-radius: 8px; overflow: hidden; margin-bottom: 24px; width: fit-content; background: var(--surface); }
+    .lang-tab { padding: 9px 22px; background: transparent; color: var(--muted); cursor: pointer; font-size: 13px; font-weight: 600; border: none; font-family: 'Inter', inherit; transition: all 0.15s; border-right: 1px solid var(--border); }
+    .lang-tab:last-child { border-right: none; }
+    .lang-tab.active { background: var(--blue); color: #090d13; }
+    .lang-tab:hover:not(.active) { background: var(--surface2); color: var(--text); }
+    .lang-panel { display: none; }
+    .lang-panel.active { display: block; }
+
+    .install-step { margin-bottom: 28px; }
+    .install-step-label { font-size: 11px; color: var(--blue); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+    .step-badge { background: var(--blue); color: #090d13; width: 20px; height: 20px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; flex-shrink: 0; }
+    .install-note { margin-top: 8px; font-size: 12px; color: var(--dim); }
+    .install-note a { color: var(--muted); }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+    .pill-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .pill { padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid; }
+    .pill-blue { border-color: rgba(88,166,255,0.4); color: var(--blue); background: rgba(88,166,255,0.07); }
+    .pill-green { border-color: rgba(63,185,80,0.4); color: var(--green); background: rgba(63,185,80,0.07); }
+    .pill-orange { border-color: rgba(255,184,108,0.4); color: var(--orange); background: rgba(255,184,108,0.07); }
+
+    /* ── Dashboard guide ── */
+    .dashboard-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    @media (max-width: 700px) { .dashboard-grid { grid-template-columns: 1fr; } }
+    .dash-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 22px; transition: border-color 0.2s, transform 0.2s; }
+    .dash-card:hover { border-color: rgba(88,166,255,0.3); transform: translateY(-2px); }
+    .dash-card-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .dash-icon { font-size: 22px; }
+    .dash-title { font-size: 14px; font-weight: 700; color: #fff; }
+    .dash-desc { font-size: 13px; color: var(--muted); line-height: 1.65; margin-bottom: 10px; }
+    .dash-tip { font-size: 12px; color: var(--dim); border-left: 2px solid var(--border2); padding-left: 10px; }
+
+    /* ── License activation ── */
+    .activate-steps { display: flex; flex-direction: column; gap: 0; }
+    .activate-step { display: flex; gap: 20px; padding: 22px 0; border-bottom: 1px solid var(--border); }
+    .activate-step:last-child { border-bottom: none; padding-bottom: 0; }
+    .a-num { width: 34px; height: 34px; border-radius: 50%; background: rgba(88,166,255,0.08); border: 2px solid var(--blue); color: var(--blue); font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; box-shadow: 0 0 12px rgba(88,166,255,0.15); }
+    .a-body h4 { color: #fff; font-size: 14px; margin-bottom: 6px; }
+    .a-body p { font-size: 13px; color: var(--muted); line-height: 1.65; }
+    .a-body code { font-size: 12px; }
+
+    /* ── Pricing ── */
+    .pricing-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    @media (max-width: 800px) { .pricing-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px) { .pricing-grid { grid-template-columns: 1fr; } }
+    .price-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 26px; position: relative; display: flex; flex-direction: column; gap: 16px; transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; }
+    .price-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.4); }
+    .price-card.popular { border-color: rgba(88,166,255,0.5); background: linear-gradient(160deg, rgba(88,166,255,0.06), rgba(88,166,255,0.02)); box-shadow: 0 0 0 1px rgba(88,166,255,0.2), 0 0 48px rgba(88,166,255,0.1); }
+    .price-card.popular:hover { box-shadow: 0 0 0 1px rgba(88,166,255,0.4), 0 0 64px rgba(88,166,255,0.16), 0 20px 56px rgba(0,0,0,0.4); }
+    .popular-tag { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: var(--blue); color: #090d13; font-size: 11px; font-weight: 700; padding: 3px 14px; border-radius: 12px; white-space: nowrap; box-shadow: 0 0 14px rgba(88,166,255,0.5); }
+    .card-tier { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
+    .card-price { font-size: 36px; font-weight: 800; color: #fff; line-height: 1.1; }
+    .card-price span { font-size: 13px; font-weight: 400; color: var(--muted); }
+    .card-features { list-style: none; display: flex; flex-direction: column; gap: 9px; flex: 1; }
+    .card-features li { font-size: 13px; color: var(--muted); display: flex; gap: 8px; align-items: flex-start; }
+    .card-features li::before { content: '✓'; flex-shrink: 0; color: var(--green); }
+    .card-btn { display: block; text-align: center; padding: 11px; border-radius: 8px; font-size: 14px; font-weight: 600; transition: all 0.15s; }
+    .card-btn:hover { text-decoration: none; filter: brightness(1.1); transform: translateY(-1px); }
+    .btn-free    { background: rgba(255,255,255,0.03); border: 1px solid var(--border2); color: var(--muted); }
+    .btn-starter { background: rgba(63,185,80,0.08); border: 1px solid rgba(63,185,80,0.35); color: var(--green); }
+    .btn-pro     { background: var(--blue); color: #090d13; box-shadow: 0 0 18px rgba(88,166,255,0.35); }
+    .btn-ent     { background: rgba(137,87,229,0.1); border: 1px solid rgba(137,87,229,0.35); color: var(--purple); }
+
+    /* ── API reference ── */
+    .api-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .api-table th { text-align: left; padding: 10px 14px; background: var(--bg); color: var(--dim); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border2); }
+    .api-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    .api-table tr:last-child td { border-bottom: none; }
+    .api-table tr:hover td { background: rgba(255,255,255,0.012); }
+    .api-table td:first-child { color: var(--green); font-weight: 700; font-family: var(--mono); font-size: 12px; white-space: nowrap; }
+    .api-table td:nth-child(2) { color: var(--blue); font-family: var(--mono); font-size: 12px; }
+    .api-table td:nth-child(3) { color: var(--muted); }
+    .api-table td:nth-child(4) { color: var(--dim); font-size: 12px; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; }
+    .badge-free    { background: rgba(255,255,255,0.05); color: var(--dim); }
+    .badge-starter { background: rgba(63,185,80,0.1); color: var(--green); border: 1px solid rgba(63,185,80,0.2); }
+    .badge-pro     { background: rgba(88,166,255,0.1); color: var(--blue); border: 1px solid rgba(88,166,255,0.2); }
+
+    /* ── Use Cases ── */
+    .usecase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    @media (max-width: 900px) { .usecase-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 560px) { .usecase-grid { grid-template-columns: 1fr; } }
+    .usecase-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 10px; transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s; position: relative; overflow: hidden; }
+    .usecase-card::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(88,166,255,0.03), transparent 60%); opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+    .usecase-card:hover { border-color: rgba(88,166,255,0.35); box-shadow: 0 0 28px rgba(88,166,255,0.06), 0 8px 24px rgba(0,0,0,0.25); transform: translateY(-3px); }
+    .usecase-card:hover::after { opacity: 1; }
+    .usecase-icon { font-size: 30px; }
+    .usecase-title { font-size: 15px; font-weight: 700; color: #fff; }
+    .usecase-desc { font-size: 13px; color: var(--muted); line-height: 1.65; flex: 1; }
+    .usecase-tag { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; width: fit-content; }
+    .tag-privacy    { background: rgba(63,185,80,0.08);   border: 1px solid rgba(63,185,80,0.28);   color: var(--green); }
+    .tag-workflow   { background: rgba(88,166,255,0.08);  border: 1px solid rgba(88,166,255,0.28);  color: var(--blue); }
+    .tag-compliance { background: rgba(255,184,108,0.08); border: 1px solid rgba(255,184,108,0.28); color: var(--orange); }
+    .tag-cost       { background: rgba(210,168,255,0.08); border: 1px solid rgba(210,168,255,0.28); color: var(--purple); }
+
+    /* ── FAQ ── */
+    .faq-list { display: flex; flex-direction: column; gap: 0; max-width: 720px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--surface); }
+    .faq-item { border-bottom: 1px solid var(--border); }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-q { font-weight: 600; color: var(--text); padding: 18px 22px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 14px; transition: color 0.15s; gap: 12px; }
+    .faq-q:hover { color: #fff; }
+    .faq-q::after { content: '+'; color: var(--blue); font-size: 20px; font-weight: 300; flex-shrink: 0; }
+    .faq-q.open { color: #fff; }
+    .faq-q.open::after { content: '−'; }
+    .faq-a { font-size: 13px; color: var(--muted); padding: 0 22px 18px; display: none; line-height: 1.75; }
+    .faq-a.open { display: block; }
+
+    /* ── CTA ── */
+    .cta-section { text-align: center; background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(88,166,255,0.06), transparent), radial-gradient(ellipse 40% 40% at 80% 20%, rgba(210,168,255,0.03), transparent); }
+    .cta-section h2 { font-size: clamp(26px, 4vw, 44px); font-weight: 900; color: #fff; margin-bottom: 14px; letter-spacing: -0.5px; }
+    .cta-section p { font-size: 15px; color: var(--muted); margin-bottom: 32px; }
+
+    /* ── Footer ── */
+    footer { border-top: 1px solid var(--border); padding: 36px 0; text-align: center; color: var(--dim); font-size: 13px; }
+    footer a { color: var(--dim); transition: color 0.15s; }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<!-- ── Nav ── -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">LogNest</div>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#usecases">Use Cases</a>
+      <a href="#how">How it works</a>
+      <a href="#integrate">Integrate</a>
+      <a href="#dashboard">Dashboard</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#activate">Activate</a>
+      <a href="#api">API</a>
+      <a href="#faq">FAQ</a>
+      <a href="mailto:contact@lognest.dev?subject=LogNest License" class="nav-cta">Buy License</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ── Hero ── -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge"><span class="hero-badge-dot"></span>For Backend Developers · Local · No Cloud · No Subscription</div>
+    <h1>Debug logs faster.<br/><span class="grad">Without leaving your machine.</span></h1>
+    <p>LogNest collects, stores, and visualizes your application logs locally in real-time. One dependency install — your logs start flowing instantly.</p>
+    <div class="hero-buttons">
+      <a href="mailto:contact@lognest.dev?subject=LogNest Download" class="btn-primary">Download Free</a>
+      <a href="#integrate" class="btn-outline">See Integrations</a>
+    </div>
+    <div class="hero-meta">
+      <span>No cloud required</span>
+      <span>Works 100% offline</span>
+      <span>Java · Node.js · Python</span>
+      <span>Mac &amp; Windows installer</span>
+      <span>One-time purchase</span>
+    </div>
+
+    <div class="terminal">
+      <div class="terminal-bar">
+        <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+        <div class="terminal-title">Spring Boot app → LogNest</div>
+      </div>
+      <div class="terminal-body">
+        <div class="t-comment"># Spring Boot: add one dependency → done. All logs auto-forwarded.</div>
+        <div><span class="t-prompt">$</span> <span class="t-cmd">grep lognest pom.xml</span></div>
+        <div class="t-info">&lt;artifactId&gt;lognest-spring-boot-starter&lt;/artifactId&gt;</div>
+        <br/>
+        <div class="t-comment"># Node.js: two lines of code</div>
+        <div><span class="t-prompt">$</span> <span class="t-cmd">node app.js</span></div>
+        <div class="t-ok">[LogNest] Connected — service='api-gateway' url='http://localhost:9000/logs'</div>
+        <br/>
+        <div class="t-comment"># Python: one line setup</div>
+        <div><span class="t-prompt">$</span> <span class="t-cmd">python app.py</span></div>
+        <div class="t-ok">[LogNest] Handler attached to root logger · service=ml-pipeline</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Features ── -->
+<section id="features">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label">Features</div>
+      <div class="section-title">Everything you need to debug locally</div>
+      <div class="section-sub">Built for the developer workflow — fast ingestion, instant search, live streaming.</div>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">HTTP Log Ingestion</div>
+        <div class="feature-desc">POST logs from any language or framework via a simple REST API. No agent, no daemon, no config files.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔌</div>
+        <div class="feature-title">Plug &amp; Play Libraries</div>
+        <div class="feature-desc">Official client libraries for Java, Node.js, and Python. One dependency install — logs flow automatically.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📡</div>
+        <div class="feature-title">Live Streaming</div>
+        <div class="feature-desc">Real-time log streaming via SSE. Watch logs flow like <code>tail -f</code> with auto-scroll.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <div class="feature-title">Smart Filtering</div>
+        <div class="feature-desc">Filter by level, service name, or search message text. Instant results across all stored logs.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💾</div>
+        <div class="feature-title">Local SQLite Storage</div>
+        <div class="feature-desc">Logs stored in an embedded SQLite file on your machine. No external database server needed.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">Error Rate Charts <span style="font-size:11px;color:var(--blue)">(Pro+)</span></div>
+        <div class="feature-desc">Visualize error counts over time. Spot spikes and incidents before they become crises.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <div class="feature-title">Alert Rules <span style="font-size:11px;color:var(--blue)">(Pro+)</span></div>
+        <div class="feature-desc">Define thresholds — get notified in the dashboard when error rates exceed your limit.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📁</div>
+        <div class="feature-title">Export CSV / JSON <span style="font-size:11px;color:var(--green)">(Starter+)</span></div>
+        <div class="feature-desc">Download filtered log data as CSV or JSON to share with your team or import elsewhere.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🧹</div>
+        <div class="feature-title">Session Clear <span style="font-size:11px;color:var(--green)">(Starter+)</span></div>
+        <div class="feature-desc">Auto-wipe all logs every time LogNest starts. Perfect for shared machines or privacy-sensitive environments. Toggle in Settings — no restart needed.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔒</div>
+        <div class="feature-title">100% Private</div>
+        <div class="feature-desc">Runs entirely on your machine. Your logs never leave localhost. No account, no telemetry.</div>
+      </div>
+      <div class="feature-card" style="border-color:#3b2f5e">
+        <div class="feature-icon">🤖</div>
+        <div class="feature-title">Unstructured Log Agent <span style="font-size:11px;color:var(--purple)">(Enterprise)</span></div>
+        <div class="feature-desc">Tail any log file or pipe any process output directly to LogNest. No code changes — works with legacy apps, Docker containers, and syslog.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Use Cases ── -->
+<section id="usecases">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label">Use Cases</div>
+      <div class="section-title">Who uses LogNest — and why</div>
+      <div class="section-sub">From solo Pi projects to enterprise dev environments where logs can never leave the building.</div>
+    </div>
+    <div class="usecase-grid">
+
+      <div class="usecase-card">
+        <div class="usecase-icon">🍓</div>
+        <div class="usecase-title">Raspberry Pi &amp; Edge Devices</div>
+        <div class="usecase-desc">Running a Pi project, home server, or edge device? Your Pi sends logs over your local network to LogNest on your dev machine — no cloud, no internet, no data leaving your home or lab. View, filter, and search Pi logs in a real dashboard. <a href="#pi">See Pi setup guide →</a></div>
+        <div class="usecase-tag tag-privacy">LAN Only</div>
+      </div>
+
+      <div class="usecase-card">
+        <div class="usecase-icon">⚡</div>
+        <div class="usecase-title">Stop Hunting Logs in Your IDE</div>
+        <div class="usecase-desc">Stop scrolling through IntelliJ or VS Code console output hoping to find that one ERROR. LogNest gives you live filtering, full-text search, level highlighting, and one-click log detail — all outside your IDE.</div>
+        <div class="usecase-tag tag-workflow">Developer Workflow</div>
+      </div>
+
+      <div class="usecase-card">
+        <div class="usecase-icon">🇪🇺</div>
+        <div class="usecase-title">GDPR-Constrained Teams</div>
+        <div class="usecase-desc">Sending dev or staging logs to a third-party SaaS like Datadog or Papertrail may require a DPA and a full GDPR compliance review — or be prohibited entirely if logs contain EU user data. LogNest keeps everything on-machine. No DPA needed.</div>
+        <div class="usecase-tag tag-compliance">GDPR Compliant</div>
+      </div>
+
+      <div class="usecase-card">
+        <div class="usecase-icon">🏥</div>
+        <div class="usecase-title">Healthcare &amp; HIPAA Apps</div>
+        <div class="usecase-desc">Dev logs for healthcare software can contain PHI fragments — patient IDs, appointment data, request bodies. Sending them off-machine to a logging SaaS creates compliance exposure. LogNest stores everything locally, with no third-party data processing.</div>
+        <div class="usecase-tag tag-compliance">HIPAA Safe</div>
+      </div>
+
+      <div class="usecase-card">
+        <div class="usecase-icon">🏢</div>
+        <div class="usecase-title">Corporate Policy: No External SaaS</div>
+        <div class="usecase-desc">Many enterprise security policies prohibit forwarding internal service logs to third-party cloud tools. LogNest satisfies these policies out of the box — fully on-machine, zero outbound traffic during normal operation.</div>
+        <div class="usecase-tag tag-compliance">Policy Compliant</div>
+      </div>
+
+      <div class="usecase-card">
+        <div class="usecase-icon">💸</div>
+        <div class="usecase-title">Skip the $30–$200/mo Cloud Bill</div>
+        <div class="usecase-desc">During development and early testing you don't need Datadog. Cloud logging bills add up fast — especially for side projects and startups. LogNest is a one-time purchase with no recurring fees, no ingestion limits on your wallet.</div>
+        <div class="usecase-tag tag-cost">One-Time Purchase</div>
+      </div>
+
+      <div class="usecase-card">
+        <div class="usecase-icon">🐳</div>
+        <div class="usecase-title">Local Microservice Stacks</div>
+        <div class="usecase-desc">Running 5 services locally with Docker Compose? Aggregate all their logs in one dashboard instead of juggling <code>docker logs -f</code> across 5 terminals. Filter by service name, correlate errors across services, spot cascading failures in seconds.</div>
+        <div class="usecase-tag tag-workflow">Multi-Service</div>
+      </div>
+
+      <div class="usecase-card">
+        <div class="usecase-icon">🔓</div>
+        <div class="usecase-title">Open-Source Contributors</div>
+        <div class="usecase-desc">When contributing to OSS projects, your local logs may contain API keys, config values, internal paths, or credentials you'd never want uploaded to a third party. LogNest keeps everything offline — your environment, your data.</div>
+        <div class="usecase-tag tag-privacy">No Data Leaks</div>
+      </div>
+
+      <div class="usecase-card">
+        <div class="usecase-icon">🔒</div>
+        <div class="usecase-title">Air-Gapped &amp; Secure Environments</div>
+        <div class="usecase-desc">No internet on the dev machine? Working in a secure facility, government project, or isolated network? LogNest works 100% offline — no telemetry, no license server ping, no cloud dependency of any kind.</div>
+        <div class="usecase-tag tag-privacy">Fully Offline</div>
+      </div>
+
+      <div class="usecase-card">
+        <div class="usecase-icon">🏦</div>
+        <div class="usecase-title">Apps Handling Personal &amp; Financial Data</div>
+        <div class="usecase-desc">Building fintech, banking, insurance, or any app that touches SSNs, account numbers, card data, or personal identifiers? Debug-level logs frequently contain fragments of this data — request bodies, validation errors, stack traces with user input. Sending those logs to a cloud SaaS is a compliance and liability risk. With LogNest, every log stays on your machine. Nothing is transmitted, nothing is stored off-device — so you can debug freely without worrying about accidentally leaking PII into a third-party system.</div>
+        <div class="usecase-tag tag-compliance">PII Safe</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── How it works ── -->
+<section id="how">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label">How it works</div>
+      <div class="section-title">Up and running in 60 seconds</div>
+    </div>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-num">1</div>
+        <div class="how-title">Install LogNest</div>
+        <div class="how-desc">Download the <strong>.dmg</strong> (Mac) or <strong>.exe</strong> (Windows) installer. Double-click to install. LogNest opens automatically.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">2</div>
+        <div class="how-title">Add the client library</div>
+        <div class="how-desc">Add one Maven dependency, npm package, or pip install to your existing app. Zero code changes for Java/Spring Boot.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">3</div>
+        <div class="how-title">Run your app</div>
+        <div class="how-desc">Start your application normally. Logs automatically stream to LogNest at <code>localhost:9000</code>.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-num">4</div>
+        <div class="how-title">Debug in the dashboard</div>
+        <div class="how-desc">Filter, search, click rows for details, watch live in real-time, export when needed.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Integration ── -->
+<section id="integrate">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label">Integration</div>
+      <div class="section-title">Plug &amp; play — one install, zero boilerplate</div>
+      <div class="section-sub">Official client libraries send logs automatically. No code changes needed for Spring Boot.</div>
+    </div>
+
+    <!-- Tab switcher -->
+    <div class="lang-tabs" id="langTabs">
+      <button class="lang-tab active" onclick="switchTab('java')">☕ Java / Spring Boot</button>
+      <button class="lang-tab" onclick="switchTab('node')">🟢 Node.js</button>
+      <button class="lang-tab" onclick="switchTab('python')">🐍 Python</button>
+      <button class="lang-tab" onclick="switchTab('curl')">⌨️ curl / Any language</button>
+    </div>
+
+    <!-- ── Java ── -->
+    <div class="lang-panel active" id="panel-java">
+      <div class="two-col">
+        <div>
+          <div class="install-step">
+            <div class="install-step-label"><span class="step-badge">1</span> Add the dependency to pom.xml</div>
+            <pre>&lt;dependency&gt;
+    &lt;groupId&gt;com.lognest&lt;/groupId&gt;
+    &lt;artifactId&gt;lognest-spring-boot-starter&lt;/artifactId&gt;
+    &lt;version&gt;1.0.0&lt;/version&gt;
+&lt;/dependency&gt;</pre>
+          </div>
+          <div class="install-step">
+            <div class="install-step-label"><span class="step-badge">2</span> Set your service name in application.properties</div>
+            <pre>lognest.service=payment-service
+
+# Optional — these are the defaults:
+# lognest.url=http://localhost:9000/logs
+# lognest.level=DEBUG
+# lognest.enabled=true</pre>
+          </div>
+          <div class="install-step">
+            <div class="install-step-label"><span class="step-badge">3</span> That's it. Run your app.</div>
+            <pre>// Your existing code — zero changes needed
+log.info("Payment processed", Map.of("orderId", id));
+log.error("Checkout failed", exception);
+log.warn("Retry attempt {}", attempt);</pre>
+            <div class="install-note">Every <code>log.info/warn/error/debug</code> call automatically appears in LogNest. MDC values (trace IDs, request IDs) are included as metadata.</div>
+          </div>
+        </div>
+        <div>
+          <div class="install-step">
+            <div class="install-step-label">How it works</div>
+            <pre style="font-size:12px;line-height:1.8">
+// Spring Boot auto-configuration registers
+// a Logback appender automatically when the
+// JAR is on the classpath.
+//
+// Console output on startup:
+[LogNest] Connected
+  service = 'payment-service'
+  url     = 'http://localhost:9000/logs'
+  level   = 'DEBUG'
+//
+// All logs forwarded asynchronously.
+// LogNest being down never affects your app.</pre>
+          </div>
+          <div class="install-step">
+            <div class="install-step-label">Disable per environment</div>
+            <pre># application-prod.properties
+lognest.enabled=false   # off in production</pre>
+          </div>
+          <div class="pill-row">
+            <span class="pill pill-blue">Spring Boot 3.x</span>
+            <span class="pill pill-blue">Logback auto-config</span>
+            <span class="pill pill-green">Async / non-blocking</span>
+            <span class="pill pill-green">Zero extra dependencies</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Node.js ── -->
+    <div class="lang-panel" id="panel-node">
+      <div class="two-col">
+        <div>
+          <div class="install-step">
+            <div class="install-step-label"><span class="step-badge">1</span> Install the package</div>
+            <pre>npm install lognest-node</pre>
+          </div>
+          <div class="install-step">
+            <div class="install-step-label"><span class="step-badge">2</span> Create a logger</div>
+            <pre>const LogNest = require('lognest-node')
+
+const log = new LogNest({ service: 'api-gateway' })
+
+// Use it anywhere
+log.info('Server started', { port: 3000 })
+log.warn('High memory', { usedMb: 512 })
+log.error('Request failed', { userId, endpoint })</pre>
+          </div>
+          <div class="install-step">
+            <div class="install-step-label">Zero-change option — patch console</div>
+            <pre>const LogNest = require('lognest-node')
+
+// Add this one line at app startup
+new LogNest({ service: 'my-app', patchConsole: true })
+
+// All existing console calls now go to LogNest:
+console.log('User logged in')   // → INFO
+console.warn('Slow query')      // → WARN
+console.error('DB timeout')     // → ERROR</pre>
+          </div>
+        </div>
+        <div>
+          <div class="install-step">
+            <div class="install-step-label">Child loggers with default metadata</div>
+            <pre>// Attach metadata to every log in a request
+app.use((req, res, next) => {
+  req.log = log.child({
+    requestId: req.id,
+    userId:    req.user?.id,
+  })
+  next()
+})
+
+// Later in route handlers:
+req.log.info('Checkout started')
+// → metadata: {requestId, userId} auto-included</pre>
+          </div>
+          <div class="install-step">
+            <div class="install-step-label">Options</div>
+            <pre>new LogNest({
+  service:      'my-service',
+  url:          'http://localhost:9000/logs', // default
+  level:        'DEBUG',   // min level to send
+  enabled:      true,
+  patchConsole: false,
+})</pre>
+          </div>
+          <div class="pill-row">
+            <span class="pill pill-green">Node.js 14+</span>
+            <span class="pill pill-green">No dependencies</span>
+            <span class="pill pill-blue">ESM + CommonJS</span>
+            <span class="pill pill-green">Async fire-and-forget</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Python ── -->
+    <div class="lang-panel" id="panel-python">
+      <div class="two-col">
+        <div>
+          <div class="install-step">
+            <div class="install-step-label"><span class="step-badge">1</span> Install the package</div>
+            <pre>pip install lognest</pre>
+          </div>
+          <div class="install-step">
+            <div class="install-step-label"><span class="step-badge">2</span> One-line setup</div>
+            <pre>import lognest
+lognest.setup(service='ml-pipeline')
+
+# All existing logging calls now go to LogNest:
+import logging
+logging.error('Model training failed')
+logging.warning('Low disk space')
+logging.info('Batch job completed')</pre>
+          </div>
+          <div class="install-step">
+            <div class="install-step-label">Django — settings.py</div>
+            <pre>LOGGING = {
+    'version': 1,
+    'handlers': {
+        'lognest': {
+            'class':   'lognest.LogNestHandler',
+            'service': 'django-app',
+        },
+    },
+    'root': {
+        'handlers': ['lognest'],
+        'level':    'DEBUG',
+    },
+}</pre>
+          </div>
+        </div>
+        <div>
+          <div class="install-step">
+            <div class="install-step-label">FastAPI / Flask</div>
+            <pre>from fastapi import FastAPI
+import lognest, logging
+
+# Add at top of main.py — done
+lognest.setup(service='fastapi-app')
+logger = logging.getLogger(__name__)
+
+app = FastAPI()
+
+@app.get('/checkout')
+async def checkout(order_id: str):
+    logger.info(f'Processing order {order_id}')
+    # ... your existing code unchanged
+    logger.error('Payment gateway timeout')</pre>
+          </div>
+          <div class="install-step">
+            <div class="install-step-label">Manual handler (more control)</div>
+            <pre>from lognest import LogNestHandler
+import logging
+
+handler = LogNestHandler(
+    service='my-service',
+    url='http://localhost:9000/logs',
+)
+handler.setLevel(logging.WARNING)  # only WARN+
+logging.getLogger().addHandler(handler)</pre>
+          </div>
+          <div class="pill-row">
+            <span class="pill pill-orange">Python 3.7+</span>
+            <span class="pill pill-green">stdlib only — zero deps</span>
+            <span class="pill pill-green">Thread-safe async</span>
+            <span class="pill pill-blue">Django · Flask · FastAPI</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── curl ── -->
+    <div class="lang-panel" id="panel-curl">
+      <div class="two-col">
+        <div>
+          <div class="install-step">
+            <div class="install-step-label">curl — test instantly</div>
+            <pre>curl -X POST http://localhost:9000/logs \
+  -H "Content-Type: application/json" \
+  -d '{
+    "level":    "ERROR",
+    "service":  "payment-service",
+    "message":  "Null pointer at PaymentController:42",
+    "trace_id": "abc-123",
+    "timestamp": 1710000000000,
+    "metadata": {
+      "userId":  "u1",
+      "orderId": "o99"
+    }
+  }'</pre>
+            <div class="install-note">
+              All fields except <code>level</code>, <code>service</code>, <code>message</code> are optional.
+              <code>timestamp</code> defaults to current time if omitted.
+            </div>
+          </div>
+          <div class="install-step">
+            <div class="install-step-label">Go</div>
+            <pre>payload := map[string]interface{}{
+    "level":   "ERROR",
+    "service": "go-service",
+    "message": err.Error(),
+}
+data, _ := json.Marshal(payload)
+http.Post(
+    "http://localhost:9000/logs",
+    "application/json",
+    bytes.NewBuffer(data),
+)</pre>
+          </div>
+        </div>
+        <div>
+          <div class="install-step">
+            <div class="install-step-label">Ruby</div>
+            <pre>require 'net/http'
+require 'json'
+
+uri = URI('http://localhost:9000/logs')
+Net::HTTP.post(
+  uri,
+  { level: 'ERROR', service: 'rails-app',
+    message: e.message }.to_json,
+  'Content-Type' => 'application/json'
+)</pre>
+          </div>
+          <div class="install-step">
+            <div class="install-step-label">PHP</div>
+            <pre>$ch = curl_init('http://localhost:9000/logs');
+curl_setopt($ch, CURLOPT_POST, 1);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode([
+    'level'   => 'ERROR',
+    'service' => 'php-app',
+    'message' => $e->getMessage(),
+]));
+curl_setopt($ch, CURLOPT_HTTPHEADER,
+    ['Content-Type: application/json']);
+curl_exec($ch);</pre>
+          </div>
+          <div class="install-step">
+            <div class="install-step-label">Request body fields</div>
+            <table class="api-table" style="font-size:12px">
+              <thead><tr><th>Field</th><th>Type</th><th>Required</th></tr></thead>
+              <tbody>
+                <tr><td>level</td><td style="color:var(--text)">string</td><td style="color:var(--green)">Yes</td></tr>
+                <tr><td>service</td><td style="color:var(--text)">string</td><td style="color:var(--green)">Yes</td></tr>
+                <tr><td>message</td><td style="color:var(--text)">string</td><td style="color:var(--green)">Yes</td></tr>
+                <tr><td>timestamp</td><td style="color:var(--text)">long (ms)</td><td style="color:var(--dim)">No</td></tr>
+                <tr><td>trace_id</td><td style="color:var(--text)">string</td><td style="color:var(--dim)">No</td></tr>
+                <tr><td>metadata</td><td style="color:var(--text)">JSON object</td><td style="color:var(--dim)">No</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Enterprise Agent ── -->
+<section id="agent" style="background:linear-gradient(180deg,#0d1117 0%,#100d1a 100%)">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label" style="color:var(--purple)">Enterprise</div>
+      <div class="section-title">Unstructured Log Agent</div>
+      <div class="section-sub">Forward <em>any</em> log file or process output to LogNest — no code changes, no HTTP client needed. Works with legacy apps, Docker, nginx, syslog, and anything else.</div>
+    </div>
+
+    <!-- Agent tabs -->
+    <div class="lang-tabs" id="agentTabs" style="margin-bottom:24px">
+      <button class="lang-tab active" onclick="switchAgentTab('atail')">📄 Tail a file</button>
+      <button class="lang-tab" onclick="switchAgentTab('apipe')">🔗 Pipe / stdin</button>
+      <button class="lang-tab" onclick="switchAgentTab('araw')">⚡ Raw API</button>
+    </div>
+
+    <!-- Tail -->
+    <div class="lang-panel active" id="panel-atail">
+      <div class="two-col">
+        <div>
+          <div class="install-step">
+            <div class="install-step-label"><span class="step-badge">1</span> Download the agent</div>
+            <pre>clients/agent/lognest-agent.py</pre>
+            <div class="install-note">Included with LogNest. Zero dependencies — Python 3 stdlib only.</div>
+          </div>
+          <div class="install-step">
+            <div class="install-step-label"><span class="step-badge">2</span> Tail any log file</div>
+            <pre>python lognest-agent.py tail \
+  --file /var/log/nginx/error.log \
+  --service nginx</pre>
+          </div>
+          <div class="install-step">
+            <div class="install-step-label"><span class="step-badge">3</span> More examples</div>
+            <pre># Spring Boot rolling file
+python lognest-agent.py tail \
+  --file logs/app.log \
+  --service spring-api
+
+# Custom LogNest URL
+python lognest-agent.py tail \
+  --file app.log --service api \
+  --url http://localhost:9000</pre>
+          </div>
+        </div>
+        <div>
+          <div style="background:var(--surface);border:1px solid #3b2f5e;border-radius:10px;padding:22px">
+            <div style="color:var(--purple);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:14px">How tail mode works</div>
+            <ul style="list-style:none;display:flex;flex-direction:column;gap:12px">
+              <li style="font-size:13px;color:var(--muted);display:flex;gap:10px"><span style="color:var(--purple);flex-shrink:0">→</span> Starts at end of file — doesn't re-send old lines</li>
+              <li style="font-size:13px;color:var(--muted);display:flex;gap:10px"><span style="color:var(--purple);flex-shrink:0">→</span> Checks for new lines every 50ms</li>
+              <li style="font-size:13px;color:var(--muted);display:flex;gap:10px"><span style="color:var(--purple);flex-shrink:0">→</span> Auto-detects level: scans each line for ERROR / WARN / INFO / DEBUG keywords</li>
+              <li style="font-size:13px;color:var(--muted);display:flex;gap:10px"><span style="color:var(--purple);flex-shrink:0">→</span> 2-second POST timeout — agent never stalls if LogNest is slow</li>
+              <li style="font-size:13px;color:var(--muted);display:flex;gap:10px"><span style="color:var(--purple);flex-shrink:0">→</span> If license is not Enterprise, agent prints a clear error and exits</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pipe -->
+    <div class="lang-panel" id="panel-apipe">
+      <div class="two-col">
+        <div>
+          <div class="install-step">
+            <div class="install-step-label">Any process via pipe</div>
+            <pre># Legacy app — forward stderr + stdout
+./my-legacy-app 2>&amp;1 | python lognest-agent.py pipe \
+  --service legacy-app
+
+# Docker container (live)
+docker logs -f my-container | python lognest-agent.py pipe \
+  --service my-container
+
+# systemd journal
+journalctl -f -u my-service | python lognest-agent.py pipe \
+  --service my-service
+
+# nginx access log via tail
+tail -f /var/log/nginx/access.log | python lognest-agent.py pipe \
+  --service nginx-access</pre>
+          </div>
+        </div>
+        <div>
+          <div class="install-step">
+            <div class="install-step-label">Level auto-detection rules</div>
+            <table class="api-table" style="font-size:12px">
+              <thead><tr><th>Detected Level</th><th>Keywords scanned (case-insensitive)</th></tr></thead>
+              <tbody>
+                <tr><td style="color:var(--red)">ERROR</td><td style="color:var(--muted)">FATAL, CRITICAL, ERROR, EXCEPTION, SEVERE, TRACEBACK</td></tr>
+                <tr><td style="color:var(--orange)">WARN</td><td style="color:var(--muted)">WARN, WARNING</td></tr>
+                <tr><td style="color:var(--blue)">DEBUG</td><td style="color:var(--muted)">DEBUG, TRACE</td></tr>
+                <tr><td style="color:var(--green)">INFO</td><td style="color:var(--muted)">INFO</td></tr>
+                <tr><td style="color:var(--dim)">INFO (default)</td><td style="color:var(--muted)">No keyword matched</td></tr>
+              </tbody>
+            </table>
+            <div class="install-note" style="margin-top:12px">You can override with <code>--level WARN</code> to force a fixed level for all lines.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Raw API -->
+    <div class="lang-panel" id="panel-araw">
+      <div class="install-step">
+        <div class="install-step-label">POST /logs/raw — plain text endpoint</div>
+        <pre><span style="color:var(--dim)"># Accepts plain text body. Level and service passed as query params.</span>
+curl -X POST "http://localhost:9000/logs/raw?service=nginx&amp;level=ERROR" \
+  --header "Content-Type: text/plain" \
+  --data-binary "2024-01-15 10:23:41 [ERROR] upstream timed out (110) while reading..."
+
+<span style="color:var(--dim)"># Level is auto-detected from body text if not provided</span>
+curl -X POST "http://localhost:9000/logs/raw?service=my-app" \
+  --header "Content-Type: text/plain" \
+  --data-binary "WARN: High memory usage detected, used=89%"</pre>
+      </div>
+      <div class="install-step">
+        <div class="install-step-label">Query parameters</div>
+        <table class="api-table" style="font-size:12px">
+          <thead><tr><th>Param</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td>service</td><td style="color:var(--green)">Yes</td><td style="color:var(--muted)">Service name shown in LogNest</td></tr>
+            <tr><td>level</td><td style="color:var(--dim)">No</td><td style="color:var(--muted)">Force log level (ERROR/WARN/INFO/DEBUG). If omitted, auto-detected from body text.</td></tr>
+          </tbody>
+        </table>
+        <div class="install-note" style="margin-top:10px">Returns <code>{"id": 42, "status": "ok"}</code> on success. Returns <code>403</code> if license is not Enterprise.</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Pi Guide ── -->
+<section id="pi">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label">Raspberry Pi &amp; Edge Devices</div>
+      <div class="section-title">Stream Pi logs to your dev machine</div>
+      <div class="section-sub">LogNest runs on your Mac or Windows machine. Your Pi sends logs to it over your local network — no internet, no cloud, no data leaving your lab.</div>
+    </div>
+
+    <!-- Architecture diagram -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:24px 28px;margin-bottom:36px;font-family:var(--mono);font-size:13px;line-height:2;">
+      <div style="color:var(--dim);margin-bottom:8px;font-size:11px;text-transform:uppercase;letter-spacing:1px;">How it works</div>
+      <div>
+        <span style="color:var(--orange)">Raspberry Pi</span>
+        <span style="color:var(--dim)"> (your app + lognest-python/node) </span>
+        <span style="color:var(--dim)">──── HTTP POST ────→ </span>
+        <span style="color:var(--blue)">192.168.x.x:9000</span>
+        <span style="color:var(--dim)"> ────→ </span>
+        <span style="color:var(--green)">LogNest on your Mac/PC</span>
+      </div>
+      <div style="color:var(--dim);margin-top:6px;font-size:12px;">Both devices must be on the same local network (WiFi/Ethernet). No internet needed.</div>
+    </div>
+
+    <!-- Step 1 -->
+    <div class="install-step">
+      <div class="install-step-label">
+        <div class="step-badge">1</div>
+        Find your dev machine's local IP
+      </div>
+      <div class="two-col">
+        <div>
+          <div style="color:var(--dim);font-size:12px;margin-bottom:6px;">macOS</div>
+          <pre>ifconfig en0 | grep "inet "
+# → inet 192.168.1.100 netmask ...</pre>
+        </div>
+        <div>
+          <div style="color:var(--dim);font-size:12px;margin-bottom:6px;">Windows</div>
+          <pre>ipconfig
+# → IPv4 Address: 192.168.1.100</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2 -->
+    <div class="install-step">
+      <div class="install-step-label">
+        <div class="step-badge">2</div>
+        Install the client library on your Pi
+      </div>
+      <pre>pip install lognest      # Python (recommended — Pi has Python built-in)
+npm install lognest      # Node.js</pre>
+    </div>
+
+    <!-- Step 3 -->
+    <div class="install-step">
+      <div class="install-step-label">
+        <div class="step-badge">3</div>
+        Point the client at your dev machine
+      </div>
+      <div class="two-col">
+        <div>
+          <div style="color:var(--dim);font-size:12px;margin-bottom:6px;">Python</div>
+          <pre>import lognest
+
+lognest.setup(
+    service='pi-sensor',
+    url='http://192.168.1.100:9000/logs'
+)
+
+import logging
+log = logging.getLogger(__name__)
+log.info("Pi started")
+log.error("Sensor read failed")</pre>
+        </div>
+        <div>
+          <div style="color:var(--dim);font-size:12px;margin-bottom:6px;">Node.js</div>
+          <pre>const LogNest = require('lognest')
+
+const log = new LogNest({
+  service: 'pi-app',
+  url: 'http://192.168.1.100:9000/logs'
+})
+
+log.info('Pi started')
+log.error('Sensor read failed')</pre>
+        </div>
+      </div>
+      <div class="install-note">Tip: set <code>LOGLITE_URL=http://192.168.1.100:9000/logs</code> as an environment variable and skip the <code>url</code> argument entirely — no code changes needed.</div>
+    </div>
+
+    <!-- Step 4 — Enterprise agent -->
+    <div class="install-step">
+      <div class="install-step-label">
+        <div class="step-badge">4</div>
+        Enterprise: tail any Pi log file without code changes
+      </div>
+      <pre><span style="color:var(--dim)"># Copy lognest-agent.py to your Pi, then run:</span>
+python lognest-agent.py tail /var/log/myapp.log \
+  --service pi-system \
+  --url http://192.168.1.100:9000/logs
+
+<span style="color:var(--dim)"># Or pipe any process output directly:</span>
+journalctl -f | python lognest-agent.py pipe \
+  --service pi-journal \
+  --url http://192.168.1.100:9000/logs</pre>
+      <div class="install-note">No code changes to your Pi app. Works with any existing log file, systemd journal, or process output. Requires <span style="color:var(--purple)">Enterprise</span> license.</div>
+    </div>
+
+    <!-- Port blocked -->
+    <div style="background:#1a0e0e;border:1px solid #6e2c2c;border-radius:10px;padding:24px 28px;margin-top:8px;">
+      <div style="color:#f85149;font-weight:700;font-size:14px;margin-bottom:16px;">Port 9000 blocked? Fix it here.</div>
+      <div style="color:var(--muted);font-size:13px;margin-bottom:18px;">If your Pi can't reach LogNest, your machine's firewall is likely blocking port 9000. Follow the steps for your OS:</div>
+
+      <div style="margin-bottom:20px;">
+        <div style="color:#fff;font-weight:700;font-size:13px;margin-bottom:8px;">macOS — System Settings firewall</div>
+        <pre><span style="color:var(--dim)"># Option 1: Allow the Java process through the macOS app firewall</span>
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw \
+  --add $(which java)
+sudo /usr/libexec/ApplicationFirewall/socketfilterfw \
+  --unblockapp $(which java)
+
+<span style="color:var(--dim)"># Option 2: Open port 9000 via pf (packet filter)</span>
+echo "pass in proto tcp from any to any port 9000" \
+  | sudo pfctl -ef -
+
+<span style="color:var(--dim)"># Option 3 (quickest during dev): turn off the app firewall temporarily</span>
+<span style="color:var(--dim)"># System Settings → Network → Firewall → turn off</span></pre>
+        <div style="font-size:12px;color:var(--dim);margin-top:6px;">After allowing, test from the Pi: <code>curl http://192.168.1.100:9000/logs/ping</code> — should return <code>200 OK</code>.</div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <div style="color:#fff;font-weight:700;font-size:13px;margin-bottom:8px;">Windows — Windows Defender Firewall</div>
+        <pre><span style="color:var(--dim)"># Run PowerShell as Administrator:</span>
+New-NetFirewallRule `
+  -DisplayName "LogNest port 9000" `
+  -Direction Inbound `
+  -Protocol TCP `
+  -LocalPort 9000 `
+  -Action Allow</pre>
+        <div style="font-size:12px;color:var(--dim);margin-top:6px;">Or: Control Panel → Windows Defender Firewall → Advanced Settings → Inbound Rules → New Rule → Port → TCP 9000 → Allow.</div>
+      </div>
+
+      <div>
+        <div style="color:#fff;font-weight:700;font-size:13px;margin-bottom:8px;">Linux (dev machine on Linux)</div>
+        <pre><span style="color:var(--dim)"># ufw</span>
+sudo ufw allow 9000/tcp
+sudo ufw reload
+
+<span style="color:var(--dim)"># iptables</span>
+sudo iptables -A INPUT -p tcp --dport 9000 -j ACCEPT</pre>
+      </div>
+
+      <div style="margin-top:18px;padding-top:16px;border-top:1px solid #3a1a1a;">
+        <div style="color:var(--orange);font-weight:700;font-size:13px;margin-bottom:8px;">Still not connecting? Quick checklist</div>
+        <div style="font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:6px;">
+          <div>✓ Both Pi and dev machine are on the <strong style="color:var(--text)">same WiFi/LAN</strong> — not a guest network or different subnet</div>
+          <div>✓ LogNest backend is running — open <code>http://localhost:9000</code> in your browser to confirm</div>
+          <div>✓ The IP you're using is your machine's LAN IP (<code>192.168.x.x</code>), not <code>127.0.0.1</code></div>
+          <div>✓ Test reachability from the Pi: <code>ping 192.168.1.100</code> then <code>curl http://192.168.1.100:9000/logs/ping</code></div>
+          <div>✓ Some routers have <strong style="color:var(--text)">AP isolation</strong> enabled — this blocks device-to-device traffic on the same WiFi. Check your router settings and disable it.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ── Dashboard Guide ── -->
+<section id="dashboard">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label">Dashboard Guide</div>
+      <div class="section-title">Everything in the UI explained</div>
+      <div class="section-sub">Open LogNest at <code>http://localhost:3000</code> after starting the app.</div>
+    </div>
+    <div class="dashboard-grid">
+      <div class="dash-card">
+        <div class="dash-card-head"><div class="dash-icon">📋</div><div class="dash-title">Logs Tab — main table</div></div>
+        <div class="dash-desc">The default view. Shows all ingested logs with columns: Time, Level (color-coded), Service, Message. Newest logs at the top.</div>
+        <div class="dash-tip">Click any row to open the full detail panel — shows complete message, trace ID, and pretty-printed metadata JSON.</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><div class="dash-icon">🔍</div><div class="dash-title">Filters bar</div></div>
+        <div class="dash-desc">Three filters applied simultaneously: <strong>Level</strong> dropdown (ERROR / WARN / INFO / DEBUG / TRACE), <strong>Service</strong> text input, and <strong>Search</strong> for message text.</div>
+        <div class="dash-tip">Filters are applied on every keystroke — no need to press Enter.</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><div class="dash-icon">📡</div><div class="dash-title">Live button — real-time streaming</div></div>
+        <div class="dash-desc">Toggle the <strong>Live</strong> button to start a Server-Sent Events stream. New logs from your app appear instantly without refreshing.</div>
+        <div class="dash-tip">Works like <code>tail -f</code>. New logs stack at the top up to 500 entries while Live is on.</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><div class="dash-icon">📊</div><div class="dash-title">Charts Tab <span style="color:var(--blue);font-size:11px">Pro+</span></div></div>
+        <div class="dash-desc">Line chart showing log counts per level over time. Choose window (15 min → 24 hours) and bucket size (1 min, 5 min, 15 min). Auto-refreshes every 30 seconds.</div>
+        <div class="dash-tip">Use this to spot error spikes during a release or load test.</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><div class="dash-icon">⚙️</div><div class="dash-title">Settings Tab</div></div>
+        <div class="dash-desc">Three panels: <strong>License</strong> (enter your key to unlock features), <strong>Saved Presets</strong> (save filter combos for one-click reuse), <strong>Alert Rules</strong> (define error rate thresholds).</div>
+        <div class="dash-tip">Presets let you save things like "payment errors" = level:ERROR + service:payment-service.</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><div class="dash-icon">❓</div><div class="dash-title">Help &amp; Pricing Tab</div></div>
+        <div class="dash-desc">In-app documentation: quick start steps, Java/Node/Python code examples, full API reference, and pricing table with license activation instructions.</div>
+        <div class="dash-tip">Always available offline — no internet needed to read the docs.</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><div class="dash-icon">📁</div><div class="dash-title">Export <span style="color:var(--green);font-size:11px">Starter+</span></div></div>
+        <div class="dash-desc">The <strong>CSV</strong> and <strong>JSON</strong> buttons in the header export all currently filtered logs. Respects the active level/service/search filters.</div>
+        <div class="dash-tip">Export then open in Excel, share with teammates, or import into another tool.</div>
+      </div>
+      <div class="dash-card">
+        <div class="dash-card-head"><div class="dash-icon">🔔</div><div class="dash-title">Alert Notifications <span style="color:var(--blue);font-size:11px">Pro+</span></div></div>
+        <div class="dash-desc">When an alert rule fires (e.g. ≥10 ERRORs in 5 minutes), a toast notification appears in the bottom-right corner of the dashboard automatically.</div>
+        <div class="dash-tip">Alerts check every 60 seconds. Each alert won't re-fire within the same time window.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Pricing ── -->
+<section id="pricing">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label">Pricing</div>
+      <div class="section-title">One-time purchase. No subscriptions.</div>
+      <div class="section-sub">Buy once, own it forever. Your license key unlocks features instantly inside the app — no restart needed.</div>
+    </div>
+    <div class="pricing-grid">
+
+      <div class="price-card">
+        <div class="card-tier" style="color:#484f58">Free</div>
+        <div class="card-price">$0</div>
+        <ul class="card-features">
+          <li>1,000 logs stored</li>
+          <li>7-day auto-cleanup</li>
+          <li>Live streaming</li>
+          <li>Level / service / text filters</li>
+          <li>Log detail + metadata view</li>
+          <li>Help tab with docs</li>
+        </ul>
+        <a href="mailto:contact@lognest.dev?subject=LogNest Download" class="card-btn btn-free">Download Free</a>
+      </div>
+
+      <div class="price-card">
+        <div class="card-tier" style="color:#3fb950">Starter</div>
+        <div class="card-price">$10 <span>one-time</span></div>
+        <ul class="card-features">
+          <li style="color:#3fb950">70,000 logs stored</li>
+          <li style="color:#3fb950">30-day auto-cleanup</li>
+          <li style="color:#3fb950">Export CSV &amp; JSON</li>
+          <li style="color:#3fb950">Saved filter presets</li>
+          <li style="color:#3fb950">Session clear (auto-wipe on startup)</li>
+          <li>All Free features</li>
+        </ul>
+        <a href="mailto:contact@lognest.dev?subject=Starter License" class="card-btn btn-starter">Buy Starter — $10</a>
+      </div>
+
+      <div class="price-card popular">
+        <div class="popular-tag">Most Popular</div>
+        <div class="card-tier" style="color:#58a6ff">Pro</div>
+        <div class="card-price">$49 <span>one-time</span></div>
+        <ul class="card-features">
+          <li style="color:#58a6ff">100,000 logs stored</li>
+          <li style="color:#58a6ff">90-day auto-cleanup</li>
+          <li style="color:#58a6ff">Error rate charts</li>
+          <li style="color:#58a6ff">Alert rules</li>
+          <li style="color:#58a6ff">Saved filter presets</li>
+          <li style="color:#58a6ff">Export CSV &amp; JSON</li>
+          <li>All Starter features</li>
+        </ul>
+        <a href="mailto:contact@lognest.dev?subject=Pro License" class="card-btn btn-pro">Buy Pro — $49</a>
+      </div>
+
+      <div class="price-card">
+        <div class="card-tier" style="color:#d2a8ff">Enterprise</div>
+        <div class="card-price">$150 <span>one-time</span></div>
+        <ul class="card-features">
+          <li style="color:#d2a8ff">Unlimited logs</li>
+          <li style="color:#d2a8ff">Unlimited retention</li>
+          <li style="color:#d2a8ff">All Pro features</li>
+          <li style="color:#d2a8ff">Unlimited projects</li>
+          <li style="color:#d2a8ff">Log file agent (tail any file)</li>
+          <li style="color:#d2a8ff">Stdin pipe agent (Docker, syslog)</li>
+          <li style="color:#d2a8ff">Raw text ingest API</li>
+          <li style="color:#d2a8ff">Priority email support</li>
+        </ul>
+        <a href="mailto:contact@lognest.dev?subject=Enterprise License" class="card-btn btn-ent">Buy Enterprise — $150</a>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:24px;color:var(--dim);font-size:13px;line-height:2">
+      All purchases via email · License key delivered within 24 hours · 14-day money-back guarantee<br/>
+      Key entered in <strong style="color:var(--text)">Settings → License</strong> inside the app · Activates instantly · No restart needed
+    </div>
+  </div>
+</section>
+
+<!-- ── License Activation ── -->
+<section id="activate">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label">License Activation</div>
+      <div class="section-title">How to purchase &amp; activate</div>
+      <div class="section-sub">From purchase to unlocked features in under 24 hours.</div>
+    </div>
+    <div style="max-width:680px">
+      <div class="activate-steps">
+        <div class="activate-step">
+          <div class="a-num">1</div>
+          <div class="a-body">
+            <h4>Email us your plan</h4>
+            <p>Send an email to <a href="mailto:contact@lognest.dev">contact@lognest.dev</a> with the subject line matching your plan — e.g. <em>"Starter License"</em> or <em>"Pro License"</em>. Include your name and any questions.</p>
+          </div>
+        </div>
+        <div class="activate-step">
+          <div class="a-num">2</div>
+          <div class="a-body">
+            <h4>Receive your license key</h4>
+            <p>Within 24 hours you'll receive a license key in this format:</p>
+            <pre style="margin-top:8px;font-size:13px">LN-PRO-20281231-A3F8B2C1-9D4E7F2A</pre>
+            <p style="margin-top:8px">The key encodes your plan tier, expiry date, and a unique buyer token tied to your email. It's verified fully offline — no internet required to activate.</p>
+          </div>
+        </div>
+        <div class="activate-step">
+          <div class="a-num">3</div>
+          <div class="a-body">
+            <h4>Open Settings in LogNest</h4>
+            <p>Click the <strong>Settings</strong> tab in the top navigation bar of the LogNest dashboard.</p>
+          </div>
+        </div>
+        <div class="activate-step">
+          <div class="a-num">4</div>
+          <div class="a-body">
+            <h4>Paste your key &amp; click Activate</h4>
+            <p>Paste the key into the license input field and click <strong>Activate</strong>. Features unlock immediately — no restart, no internet, no account.</p>
+          </div>
+        </div>
+        <div class="activate-step">
+          <div class="a-num">5</div>
+          <div class="a-body">
+            <h4>Features unlock instantly</h4>
+            <p>The tier badge in the top bar updates. Locked features (Charts, Alerts, Presets, Export) become fully available right away. The key is saved — it persists across restarts.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── API Reference ── -->
+<section id="api">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label">API Reference</div>
+      <div class="section-title">Full REST API</div>
+      <div class="section-sub">Base URL: <code>http://localhost:9000</code></div>
+    </div>
+    <table class="api-table">
+      <thead>
+        <tr><th>Method</th><th>Endpoint</th><th>Description</th><th>Plan</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>POST</td><td>/logs</td>
+          <td>Ingest a log entry. Body: <code>level</code>, <code>service</code>, <code>message</code> (required) + <code>timestamp</code>, <code>trace_id</code>, <code>metadata</code> (optional)</td>
+          <td><span class="badge badge-free">Free</span></td>
+        </tr>
+        <tr>
+          <td>GET</td><td>/logs</td>
+          <td>Query logs. Params: <code>level</code> <code>service</code> <code>search</code> <code>from</code> <code>to</code> <code>limit</code> (default 100)</td>
+          <td><span class="badge badge-free">Free</span></td>
+        </tr>
+        <tr>
+          <td>GET</td><td>/logs/stream</td>
+          <td>Server-Sent Events stream. Emits <code>log</code> events for new logs and <code>alert</code> events when alert rules fire.</td>
+          <td><span class="badge badge-free">Free</span></td>
+        </tr>
+        <tr>
+          <td>DELETE</td><td>/logs</td>
+          <td>Delete all stored logs.</td>
+          <td><span class="badge badge-free">Free</span></td>
+        </tr>
+        <tr>
+          <td>GET</td><td>/logs/export</td>
+          <td>Download logs as file. Params: <code>format=csv|json</code>, same filters as GET /logs.</td>
+          <td><span class="badge badge-starter">Starter+</span></td>
+        </tr>
+        <tr>
+          <td>GET</td><td>/settings</td>
+          <td>Get current app settings. Returns <code>sessionClear</code> (bool) and <code>sessionClearEnabled</code> (bool based on license).</td>
+          <td><span class="badge badge-free">Free</span></td>
+        </tr>
+        <tr>
+          <td>POST</td><td>/settings</td>
+          <td>Update app settings. Body: <code>{"sessionClear": true}</code>. Clears all logs on next startup when enabled.</td>
+          <td><span class="badge badge-starter">Starter+</span></td>
+        </tr>
+        <tr>
+          <td>GET/POST/DELETE</td><td>/presets</td>
+          <td>Saved filter presets. POST body: <code>name</code>, <code>level</code>, <code>service</code>, <code>search</code>.</td>
+          <td><span class="badge badge-starter">Starter+</span></td>
+        </tr>
+        <tr>
+          <td>GET</td><td>/analytics/stats</td>
+          <td>Error counts by time bucket. Params: <code>windowMinutes</code> (default 60), <code>bucketMinutes</code> (default 5).</td>
+          <td><span class="badge badge-pro">Pro+</span></td>
+        </tr>
+        <tr>
+          <td>GET/POST/PUT/DELETE</td><td>/alerts</td>
+          <td>Alert rules. POST body: <code>name</code>, <code>level</code>, <code>thresholdCount</code>, <code>windowMinutes</code>, <code>enabled</code>.</td>
+          <td><span class="badge badge-pro">Pro+</span></td>
+        </tr>
+        <tr>
+          <td>POST</td><td>/logs/raw</td>
+          <td>Ingest plain text log line. Params: <code>service</code> (required), <code>level</code> (optional — auto-detected from body if omitted). Body: plain text.</td>
+          <td><span class="badge" style="background:#1d1236;color:var(--purple)">Enterprise</span></td>
+        </tr>
+        <tr>
+          <td>GET</td><td>/license</td>
+          <td>Returns current tier and feature flags: <code>tier</code>, <code>logLimit</code>, <code>exportEnabled</code>, <code>chartsEnabled</code>, <code>alertsEnabled</code>, etc.</td>
+          <td><span class="badge badge-free">Free</span></td>
+        </tr>
+        <tr>
+          <td>POST</td><td>/license/activate</td>
+          <td>Activate a license key. Body: <code>{"key": "LN-PRO-20281231-XXXXXXXX"}</code>. Returns <code>success</code> and <code>tier</code>.</td>
+          <td><span class="badge badge-free">Free</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div style="margin-top:24px">
+      <div class="install-step-label" style="margin-bottom:10px">Example responses</div>
+      <div class="two-col">
+        <div>
+          <pre style="font-size:12px"><span style="color:var(--dim)">// POST /logs → 200</span>
+{ "id": 42, "status": "ok" }
+
+<span style="color:var(--dim)">// GET /logs?level=ERROR&limit=2</span>
+[
+  {
+    "id": 42,
+    "timestamp": 1710000000000,
+    "level": "ERROR",
+    "service": "payment-service",
+    "message": "NPE at PaymentController:42",
+    "traceId": "abc-123",
+    "metadata": { "userId": "u1" }
+  }
+]</pre>
+        </div>
+        <div>
+          <pre style="font-size:12px"><span style="color:var(--dim)">// GET /license</span>
+{
+  "tier":           "PRO",
+  "logLimit":       100000,
+  "retentionDays":  90,
+  "exportEnabled":  true,
+  "chartsEnabled":  true,
+  "alertsEnabled":  true,
+  "presetsEnabled": true
+}
+
+<span style="color:var(--dim)">// POST /license/activate</span>
+{ "success": true, "tier": "PRO" }</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FAQ ── -->
+<section id="faq">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label">FAQ</div>
+      <div class="section-title">Common questions</div>
+    </div>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Does LogNest send any data to the cloud?</div>
+        <div class="faq-a">No. LogNest runs entirely on your machine. All log data is stored locally in a SQLite file. No telemetry, no analytics, no data ever leaves your computer.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Do I need Java installed to run LogNest?</div>
+        <div class="faq-a">Yes, Java 17 or higher must be installed on your machine — the installer does not bundle a JRE. Most developer machines already have Java. Check with <code>java -version</code>. Download from <a href="https://adoptium.net" target="_blank">adoptium.net</a> if needed.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How do I install the Java Spring Boot starter?</div>
+        <div class="faq-a">Run <code>mvn install</code> in the <code>clients/java</code> directory included with LogNest. This installs the starter to your local Maven repository. Then add the <code>&lt;dependency&gt;</code> to your project's pom.xml and set <code>lognest.service=your-app</code> in application.properties. That's all.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Will LogNest being down crash my application?</div>
+        <div class="faq-a">No. All client libraries send logs asynchronously with a 2-second timeout and silently swallow errors. If LogNest is unreachable, your app continues running normally and simply skips sending those logs.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How do I receive my license key?</div>
+        <div class="faq-a">Email <a href="mailto:contact@lognest.dev">contact@lognest.dev</a> with your plan. You'll receive a license key like <code>LN-PRO-20281231-A3F8B2C1-9D4E7F2A</code> within 24 hours. Paste it in Settings → License inside the app. Features activate instantly.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Can I use one license key on multiple machines?</div>
+        <div class="faq-a">Yes — each license key can be activated on up to 3 machines for personal use. Need more seats? Contact us for a team license.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What happens when my license expires?</div>
+        <div class="faq-a">The app reverts to Free tier — your log data is never deleted. Purchase a new key to re-enable paid features. Keys include the expiry date in the key itself and are verified offline.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Is there a refund policy?</div>
+        <div class="faq-a">Yes — 14-day money-back guarantee, no questions asked. Email <a href="mailto:contact@lognest.dev">contact@lognest.dev</a>.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Can I use LogNest with non-Java/Node/Python languages?</div>
+        <div class="faq-a">Yes. Any language that can make an HTTP POST request works — Go, Ruby, PHP, Rust, .NET, etc. The API is a plain JSON REST endpoint. See the curl tab in the Integration section for the request format.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What is the Enterprise Log Agent and when do I need it?</div>
+        <div class="faq-a">The agent (<code>lognest-agent.py</code>) is for apps you <strong>can't modify</strong> — legacy services, third-party binaries, Docker containers, nginx, syslog, etc. Instead of adding a library to your code, you either <strong>tail a log file</strong> (<code>tail</code> mode) or <strong>pipe the process output</strong> (<code>pipe</code> mode) and the agent forwards every line to LogNest automatically. It auto-detects the log level from each line. Requires Enterprise license.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How does the agent detect the log level from unstructured text?</div>
+        <div class="faq-a">It scans each line (case-insensitive) for keywords: <code>FATAL</code> / <code>CRITICAL</code> / <code>ERROR</code> / <code>EXCEPTION</code> → ERROR; <code>WARN</code> → WARN; <code>DEBUG</code> / <code>TRACE</code> → DEBUG; <code>INFO</code> → INFO. If no keyword matches, it defaults to INFO. You can also force a fixed level with <code>--level ERROR</code>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<section class="cta-section">
+  <div class="container">
+    <h2>Start debugging smarter today.</h2>
+    <p>Free to download. One dependency install. Your logs appear in seconds.</p>
+    <div class="hero-buttons">
+      <a href="mailto:contact@lognest.dev?subject=LogNest Download" class="btn-primary">Download for Free</a>
+      <a href="mailto:contact@lognest.dev?subject=LogNest License Purchase" class="btn-outline">Buy a License</a>
+    </div>
+    <div style="margin-top:16px;font-size:13px;color:var(--dim)">
+      Questions? <a href="mailto:contact@lognest.dev" style="color:var(--muted)">contact@lognest.dev</a> · 14-day money-back guarantee
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ── -->
+<footer>
+  <div class="container">
+    <p>
+      <strong style="color:var(--blue);font-family:var(--mono)">LogNest</strong>
+      &nbsp;·&nbsp; Local log analysis for backend developers
+      &nbsp;·&nbsp; <a href="mailto:contact@lognest.dev">contact@lognest.dev</a>
+    </p>
+    <p style="margin-top:8px">© 2024 LogNest. All rights reserved. &nbsp;·&nbsp; <a href="mailto:contact@lognest.dev?subject=Refund Request">Refund Policy</a></p>
+  </div>
+</footer>
+
+<script>
+  // Tab switcher (integrate section)
+  function switchTab(lang) {
+    const langs = ['java','node','python','curl']
+    document.querySelectorAll('#langTabs .lang-tab').forEach((t, i) => {
+      t.classList.toggle('active', langs[i] === lang)
+    })
+    document.querySelectorAll('#panel-java,#panel-node,#panel-python,#panel-curl').forEach(p => {
+      p.classList.toggle('active', p.id === 'panel-' + lang)
+    })
+  }
+
+  // Tab switcher (agent section)
+  function switchAgentTab(key) {
+    const keys = ['atail','apipe','araw']
+    document.querySelectorAll('#agentTabs .lang-tab').forEach((t, i) => {
+      t.classList.toggle('active', keys[i] === key)
+    })
+    document.querySelectorAll('#panel-atail,#panel-apipe,#panel-araw').forEach(p => {
+      p.classList.toggle('active', p.id === 'panel-' + key)
+    })
+  }
+
+  // FAQ accordion
+  function toggleFaq(el) {
+    const answer = el.nextElementSibling
+    const isOpen = el.classList.contains('open')
+    // Close all
+    document.querySelectorAll('.faq-q').forEach(q => q.classList.remove('open'))
+    document.querySelectorAll('.faq-a').forEach(a => a.classList.remove('open'))
+    // Open clicked (unless it was already open)
+    if (!isOpen) {
+      el.classList.add('open')
+      answer.classList.add('open')
+    }
+  }
+</script>
+</body>
+</html>
