@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LogNest i18n — Multilingual Log Analysis for Global Teams</title>
+  <meta name="description" content="LogNest now speaks your language. Full UI internationalization in English, Chinese, Japanese, Korean, German, and French. Local-first, privacy-safe developer log analysis." />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d1117;
+      --bg2:       #161b22;
+      --bg3:       #21262d;
+      --border:    #30363d;
+      --text:      #e6edf3;
+      --muted:     #8b949e;
+      --accent:    #58a6ff;
+      --accent2:   #3fb950;
+      --warn:      #d29922;
+      --danger:    #f85149;
+      --purple:    #bc8cff;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,17,23,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 56px;
+    }
+    .nav-logo { font-weight: 700; font-size: 1.1rem; color: var(--text); display: flex; align-items: center; gap: 8px; }
+    .nav-logo span { color: var(--accent); }
+    .nav-badge { background: var(--accent); color: #000; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 9px; letter-spacing: .5px; }
+    .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+    .nav-links a { color: var(--muted); font-size: 0.9rem; }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 6px; font-size: 0.875rem; font-weight: 600; cursor: pointer; transition: opacity .15s; }
+    .btn:hover { opacity: .85; text-decoration: none; }
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+
+    /* ── HERO ── */
+    .hero {
+      text-align: center;
+      padding: 80px 1rem 60px;
+      max-width: 860px; margin: 0 auto;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(88,166,255,.12); border: 1px solid rgba(88,166,255,.3);
+      border-radius: 20px; padding: 4px 14px; font-size: 0.8rem;
+      color: var(--accent); margin-bottom: 24px;
+    }
+    .hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; line-height: 1.15; margin-bottom: 20px; }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero p { font-size: 1.15rem; color: var(--muted); max-width: 600px; margin: 0 auto 36px; }
+    .hero-flags { font-size: 1.8rem; letter-spacing: 4px; margin-bottom: 36px; }
+    .hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    /* ── LANG STRIP ── */
+    .lang-strip {
+      background: var(--bg2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      padding: 20px 2rem;
+      display: flex; justify-content: center; align-items: center; gap: 32px; flex-wrap: wrap;
+    }
+    .lang-item { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 0.9rem; }
+    .lang-item span:first-child { font-size: 1.4rem; }
+
+    /* ── SECTION LAYOUT ── */
+    section { padding: 72px 1rem; }
+    .section-inner { max-width: 1000px; margin: 0 auto; }
+    .section-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+    h2 { font-size: clamp(1.5rem, 3vw, 2.2rem); font-weight: 700; margin-bottom: 16px; }
+    .section-sub { color: var(--muted); font-size: 1.05rem; max-width: 600px; margin-bottom: 48px; }
+
+    /* ── FEATURE GRID ── */
+    .feature-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .feature-card {
+      background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 24px;
+      transition: border-color .2s;
+    }
+    .feature-card:hover { border-color: var(--accent); }
+    .feature-icon { font-size: 1.6rem; margin-bottom: 12px; }
+    .feature-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
+    .feature-card p { color: var(--muted); font-size: 0.875rem; line-height: 1.6; }
+
+    /* ── SCREENSHOT ── */
+    .screenshot-wrap {
+      border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+      background: var(--bg2); margin-top: 40px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.6);
+    }
+    .screenshot-bar {
+      background: var(--bg3); padding: 10px 16px; display: flex; align-items: center; gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .dot-r { background: #f85149; }
+    .dot-y { background: var(--warn); }
+    .dot-g { background: var(--accent2); }
+    .screenshot-wrap img { width: 100%; display: block; }
+    .screenshot-placeholder {
+      background: var(--bg3); padding: 80px; text-align: center;
+      color: var(--muted); font-size: 0.9rem;
+    }
+
+    /* ── LOCALE TABLE ── */
+    .locale-table { width: 100%; border-collapse: collapse; margin-top: 32px; font-size: 0.9rem; }
+    .locale-table th { text-align: left; padding: 10px 16px; color: var(--muted); font-weight: 600; border-bottom: 1px solid var(--border); }
+    .locale-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+    .locale-table tr:last-child td { border-bottom: none; }
+    .locale-table tr:hover td { background: var(--bg2); }
+    .badge-complete { background: rgba(63,185,80,.15); border: 1px solid rgba(63,185,80,.4); color: var(--accent2); font-size: 11px; padding: 2px 8px; border-radius: 9px; }
+
+    /* ── STEPS ── */
+    .steps { display: flex; flex-direction: column; gap: 24px; margin-top: 36px; }
+    .step { display: flex; gap: 20px; align-items: flex-start; }
+    .step-num { flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%; background: rgba(88,166,255,.15); border: 1px solid rgba(88,166,255,.4); color: var(--accent); font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; }
+    .step-body h3 { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
+    .step-body p { color: var(--muted); font-size: 0.875rem; }
+    code { background: var(--bg3); border: 1px solid var(--border); border-radius: 4px; padding: 1px 6px; font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.82rem; color: var(--purple); }
+
+    /* ── CTA ── */
+    .cta-section {
+      text-align: center; background: var(--bg2);
+      border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+      padding: 72px 1rem;
+    }
+    .cta-section h2 { margin-bottom: 16px; }
+    .cta-section p { color: var(--muted); margin-bottom: 32px; font-size: 1.05rem; }
+    .cta-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center; padding: 32px 1rem;
+      color: var(--muted); font-size: 0.85rem;
+      border-top: 1px solid var(--border);
+    }
+    footer a { color: var(--muted); }
+    footer a:hover { color: var(--text); }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav>
+  <div class="nav-logo">
+    🪺 LogNest <span>i18n</span>
+    <span class="nav-badge">NEW</span>
+  </div>
+  <div class="nav-links">
+    <a href="#languages">Languages</a>
+    <a href="#features">Features</a>
+    <a href="#setup">Setup</a>
+    <a href="https://aditya-mcis.github.io/lognest-releases/" target="_blank">Main Site</a>
+    <a href="https://shrivadi.gumroad.com/l/axqcym" class="btn btn-primary" target="_blank">Get LogNest</a>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-eyebrow">🌍 Multilingual Release</div>
+  <h1>LogNest now speaks<br><em>your language</em></h1>
+  <p>Full UI internationalization across 6 languages. Local-first log analysis — now accessible to developers worldwide without changing a line of your logging code.</p>
+  <div class="hero-flags">🇬🇧 🇨🇳 🇯🇵 🇰🇷 🇩🇪 🇫🇷</div>
+  <div class="hero-cta">
+    <a href="app/" class="btn btn-primary">Try Live Demo</a>
+    <a href="https://aditya-mcis.github.io/lognest-releases/" class="btn btn-outline" target="_blank">Download LogNest</a>
+  </div>
+</div>
+
+<!-- ── LANG STRIP ── -->
+<div class="lang-strip">
+  <div class="lang-item"><span>🇬🇧</span> English</div>
+  <div class="lang-item"><span>🇨🇳</span> 中文 (简体)</div>
+  <div class="lang-item"><span>🇯🇵</span> 日本語</div>
+  <div class="lang-item"><span>🇰🇷</span> 한국어</div>
+  <div class="lang-item"><span>🇩🇪</span> Deutsch</div>
+  <div class="lang-item"><span>🇫🇷</span> Français</div>
+</div>
+
+<!-- ── SCREENSHOT ── -->
+<section>
+  <div class="section-inner">
+    <div class="section-label">Interface</div>
+    <h2>Familiar dashboard, your language</h2>
+    <p class="section-sub">Switch languages instantly from the header dropdown. Preference is saved per-browser — no account needed.</p>
+    <div class="screenshot-wrap">
+      <div class="screenshot-bar">
+        <div class="dot dot-r"></div>
+        <div class="dot dot-y"></div>
+        <div class="dot dot-g"></div>
+        <span style="color:var(--muted);font-size:12px;margin-left:8px;">LogNest — Log Dashboard</span>
+        <span style="margin-left:auto;font-size:18px">🇨🇳</span>
+      </div>
+      <img src="screenshot-dashboard.png" alt="LogNest dashboard" onerror="this.style.display='none';this.nextElementSibling.style.display='block'" />
+      <div class="screenshot-placeholder" style="display:none">[ Dashboard screenshot ]</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── LANGUAGE TABLE ── -->
+<section id="languages" style="background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+  <div class="section-inner">
+    <div class="section-label">Coverage</div>
+    <h2>94 translation keys, zero gaps</h2>
+    <p class="section-sub">Every UI string is translated — navigation, log table, filters, detail panel, alerts, presets, license management, and charts.</p>
+    <table class="locale-table">
+      <thead>
+        <tr>
+          <th>Language</th>
+          <th>Code</th>
+          <th>Keys</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>🇬🇧 English</td><td><code>en</code></td><td>94</td><td><span class="badge-complete">Complete</span></td></tr>
+        <tr><td>🇨🇳 Chinese (Simplified)</td><td><code>zh-CN</code></td><td>94</td><td><span class="badge-complete">Complete</span></td></tr>
+        <tr><td>🇯🇵 Japanese</td><td><code>ja</code></td><td>94</td><td><span class="badge-complete">Complete</span></td></tr>
+        <tr><td>🇰🇷 Korean</td><td><code>ko</code></td><td>94</td><td><span class="badge-complete">Complete</span></td></tr>
+        <tr><td>🇩🇪 German</td><td><code>de</code></td><td>94</td><td><span class="badge-complete">Complete</span></td></tr>
+        <tr><td>🇫🇷 French</td><td><code>fr</code></td><td>94</td><td><span class="badge-complete">Complete</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── FEATURES ── -->
+<section id="features">
+  <div class="section-inner">
+    <div class="section-label">Features</div>
+    <h2>What's included</h2>
+    <p class="section-sub">All the power of LogNest, now with language-aware UI built on industry-standard i18n tooling.</p>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon">🌐</div>
+        <h3>Auto language detection</h3>
+        <p>Automatically picks up your browser language on first launch. Falls back to English when a locale isn't available.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💾</div>
+        <h3>Preference persisted</h3>
+        <p>Language choice is saved to <code>localStorage</code> under <code>lognest_lang</code>. Survives page reloads and restarts.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Zero runtime cost</h3>
+        <p>All translations are bundled at build time via <code>react-i18next</code>. No network requests for locale files.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔌</div>
+        <h3>Works with all integrations</h3>
+        <p>Backend API, Python client, Node.js client, Java client, curl — unchanged. Only the UI is translated.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <h3>Interpolation support</h3>
+        <p>Dynamic values like log counts, tier names, and thresholds are correctly interpolated in every language.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🧩</div>
+        <h3>Easy to extend</h3>
+        <p>Add a new language by dropping a single JSON file in <code>src/i18n/locales/</code> and registering it in <code>index.js</code>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SETUP ── -->
+<section id="setup" style="background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+  <div class="section-inner">
+    <div class="section-label">Get started</div>
+    <h2>Set up in 3 steps</h2>
+    <p class="section-sub">Clone the i18n branch, install, and run. Your existing backend and log clients need no changes.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-body">
+          <h3>Clone the repo</h3>
+          <p><code>git clone https://github.com/Yuli-Developer/lognest-i18n.git</code></p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-body">
+          <h3>Install and start frontend</h3>
+          <p><code>cd lognest-i18n/frontend &amp;&amp; npm install &amp;&amp; npm run dev</code> — opens on <code>localhost:3000</code></p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-body">
+          <h3>Start the backend</h3>
+          <p>Run the Spring Boot backend from the main LogNest repo on <code>localhost:9000</code>. Frontend connects automatically.</p>
+        </div>
+      </div>
+    </div>
+    <div style="margin-top:32px; padding:20px; background:var(--bg3); border:1px solid var(--border); border-radius:8px;">
+      <strong>Run the test suite:</strong><br>
+      <code style="display:block;margin-top:8px;">bash test.sh</code>
+      <p style="color:var(--muted);font-size:0.85rem;margin-top:8px;">Checks backend health, frontend reachability, all 6 locale files for completeness, source file existence, and a full production build.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── CTA ── -->
+<div class="cta-section">
+  <div class="section-label">Download LogNest</div>
+  <h2>Start analyzing logs in your language</h2>
+  <p>The i18n frontend works with any LogNest tier — Free, Starter, Pro, or Enterprise.</p>
+  <div class="cta-btns">
+    <a href="https://shrivadi.gumroad.com/l/axqcym" class="btn btn-primary" target="_blank">Get Starter — $10</a>
+    <a href="https://shrivadi.gumroad.com/l/hlcse" class="btn btn-outline" target="_blank">Get Pro — $49</a>
+    <a href="https://shrivadi.gumroad.com/l/cejcjb" class="btn btn-outline" target="_blank">Enterprise — $150</a>
+  </div>
+  <p style="margin-top:20px;font-size:0.8rem;color:var(--muted)">Secure checkout via Gumroad · All tiers include the i18n frontend</p>
+</div>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <p>LogNest i18n · Built on <a href="https://www.i18next.com/" target="_blank">i18next</a> + <a href="https://react.i18next.com/" target="_blank">react-i18next</a></p>
+  <p style="margin-top:8px"><a href="https://aditya-mcis.github.io/lognest-releases/">Main LogNest site</a> · <a href="https://github.com/Yuli-Developer/lognest-i18n">GitHub</a> · <a href="mailto:yuliasergeeva596@gmail.com">Contact</a></p>
+</footer>
+
+</body>
+</html>
